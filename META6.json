@@ -1,0 +1,29 @@
+{
+  "author": "David Warring",
+  "build-depends": [
+  ],
+  "depends": [
+    "IETF::RFC_Grammar::URI",
+      "LibXML::Writer",
+    "File::Temp",
+    "URI"
+  ],
+  "description": "Render Pod as XML",
+  "license": "Artistic-2.0",
+  "name": "Pod::To::XML",
+  "provides": {
+      "Pod::To::XML": "lib/Pod/To/XML.rakumod",
+      "Pod::To::XML::Writer": "lib/Pod/To/XML/Writer.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "git://github.com/pod-to-pdf/Pod-to-PDF-XML-raku.git",
+  "tags": [
+    "pdf",
+    "pod",
+    "xml"
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
