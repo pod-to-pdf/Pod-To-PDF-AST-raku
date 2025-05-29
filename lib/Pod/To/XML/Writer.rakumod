@@ -5,6 +5,7 @@ use LibXML::Writer::File;
 has LibXML::Writer:D $.doc = LibXML::Writer::File.new;
 has Str:D @!tags;
 has Str:D $.lang = 'en';
+has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
 has Bool:D $!inlining = False;
 has Bool $.verbose;
 has %.replace;
@@ -13,8 +14,10 @@ enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Document<Docum
 
 method render($pod) {
     $!doc.setIndentString('  ');
-    $!doc.setIndented(True);
     $!doc.startDocument;
+    $!doc.writeDTD(Document, :system-id($!dtd));
+    $!doc.setIndented(True);
+    $!doc.writeText("\n");
     self!tag: Document, :Lang($!lang), {
         $.pod2pdf($pod);
     }
@@ -154,6 +157,12 @@ multi method pod2pdf(Pod::FormattingCode $pod) {
     }
 }
 
+multi method pod2pdf(Pod::Block::Code $pod) {
+    self!tag: CODE, :Placement<Block>, {
+        $.pod2pdf: $pod.contents;
+    }
+}
+
 multi method pod2pdf(List:D $pod) {
     my @lists;
     for $pod.list {
@@ -164,8 +173,10 @@ multi method pod2pdf(List:D $pod) {
 }
 
 multi method pod2pdf(Str:D $text) {
-    $!doc.setIndented(False);
-    $!inlining = True;
+    $!inlining ||= do {
+        $!doc.setIndented(False);
+        True;
+    }
     $!doc.writeText: $text;
 }
 

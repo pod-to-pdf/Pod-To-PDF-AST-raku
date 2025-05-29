@@ -7,6 +7,7 @@ use Pod::To::XML::Writer;
 plan 1;
 
 my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
 <Document Lang="en">
   <P>This is all a paragraph.</P>
   <P>This is the next paragraph.</P>

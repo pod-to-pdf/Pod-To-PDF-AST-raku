@@ -18,7 +18,7 @@ method render (
          note '(valid options are: --save-as=)'
              if $show-usage;
     }
-    my LibXML::Writer::File.$doc .= new: :file($save-as);
+    my LibXML::Writer::File $doc .= new: :file($save-as);
     my Pod::To::XML::Writer $writer .= new: :$save-as, |c;
     $writer.render($pod);
     $save-as eq '-'
