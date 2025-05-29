@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Writer;
+use Pod::To::PDF::XML::Writer;
 
 plan 1;
 
@@ -26,40 +26,26 @@ broken
 up</Code>
   <P>asdf</P>
   <Code Placement="Block">Abbreviated
-  </Code>
-  <P>
-    asdf
-  </P>
-  <P>
-    <Code Placement="Block">
-      Paragraph
-      code
-    </Code>
-  </P>
-  <P>
-    asdf
-  </P>
-  <P>
-    <Code Placement="Block">
-      Delimited
-      code
-    </Code>
-  </P>
-  <P>
-    asdf
-  </P>
-  <P>
-    <Code Placement="Block">
-      <Strong>Formatted</Strong>
-      code
-    </Code>
-  </P>
+</Code>
+  <P>asdf</P>
+  <Code Placement="Block">Paragraph
+code
+</Code>
+  <P>asdf</P>
+  <Code Placement="Block">Delimited
+code
+</Code>
+  <P>asdf</P>
+  <Code Placement="Block"><Strong>Formatted</Strong>
+code
+</Code>
 </Document>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::Writer $writer .= new: :$doc;
+my Pod::To::PDF::XML::Writer $writer .= new: :$doc;
 $writer.render($=pod);
+'/tmp/out.xml'.IO.spurt: $doc.Str;
 is $doc.Str, $xml,
    'Various types of code blocks convert correctly.';
 

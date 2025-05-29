@@ -1,6 +1,6 @@
-unit class Pod::To::XML;
+unit class Pod::To::PDF::XML;
 
-use Pod::To::XML::Writer;
+use Pod::To::PDF::XML::Writer;
 use LibXML::Writer::File;
 
 method render (
@@ -19,7 +19,7 @@ method render (
              if $show-usage;
     }
     my LibXML::Writer::File $doc .= new: :file($save-as);
-    my Pod::To::XML::Writer $writer .= new: :$save-as, |c;
+    my Pod::To::PDF::XML::Writer $writer .= new: :$save-as, |c;
     $writer.render($pod);
     $save-as eq '-'
         ?? ''

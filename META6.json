@@ -4,16 +4,16 @@
   ],
   "depends": [
     "IETF::RFC_Grammar::URI",
-      "LibXML::Writer",
+    "LibXML::Writer",
     "File::Temp",
     "URI"
   ],
-  "description": "Render Pod as XML",
+  "description": "Render Pod as intermediate PDF-XML",
   "license": "Artistic-2.0",
-  "name": "Pod::To::XML",
+    "name": "Pod::To::PDF::XML",
   "provides": {
-      "Pod::To::XML": "lib/Pod/To/XML.rakumod",
-      "Pod::To::XML::Writer": "lib/Pod/To/XML/Writer.rakumod"
+      "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
+      "Pod::To::PDF::XML::Writer": "lib/Pod/To/PDF/XML/Writer.rakumod"
   },
   "resources": [
   ],

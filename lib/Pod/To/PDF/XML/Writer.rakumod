@@ -1,4 +1,4 @@
-unit class Pod::To::XML::Writer;
+unit class Pod::To::PDF::XML::Writer;
 
 use LibXML::Writer;
 use LibXML::Writer::File;
@@ -19,7 +19,7 @@ method render($pod) {
     $!doc.setIndented(True);
     $!doc.writeText("\n");
     self!tag: Document, :Lang($!lang), {
-        $.pod2pdf($pod);
+        $.pod2pdf-xml($pod);
     }
     $!doc.endDocument;
 }
@@ -35,20 +35,20 @@ method !nest-list(@lists, $level) {
     }
 }
 
-multi method pod2pdf(Pod::Block::Named $pod) {
+multi method pod2pdf-xml(Pod::Block::Named $pod) {
     given $pod.name {
         when 'pod'|'para' {
-            $.pod2pdf: $pod.contents;
+            $.pod2pdf-xml: $pod.contents;
        }
         default {
             warn "ignoring {.raku} block";
-            $.pod2pdf($pod.contents);
+            $.pod2pdf-xml($pod.contents);
         }
     }
 }
-multi method pod2pdf(Pod::Block::Para $pod) {
+multi method pod2pdf-xml(Pod::Block::Para $pod) {
     self!tag: Paragraph, {
-        $.pod2pdf($pod.contents);
+        $.pod2pdf-xml($pod.contents);
     }
 }
 
@@ -72,47 +72,47 @@ method !replace(Pod::FormattingCode $pod where .type eq 'R', &continue) {
     $rv;
 }
 
-multi method pod2pdf(Pod::Block::Comment $pod) {
+multi method pod2pdf-xml(Pod::Block::Comment $pod) {
     $!doc.writeComment:  ' ' ~  $.pod2text($pod).trim ~ ' ';
 }
 
-multi method pod2pdf(Pod::FormattingCode $pod) {
+multi method pod2pdf-xml(Pod::FormattingCode $pod) {
     given $pod.type {
         when 'B' {
             self!tag: Strong, :inline, {
-                $.pod2pdf($pod.contents);
+                $.pod2pdf-xml($pod.contents);
             }
         }
         when 'C' {
             self!tag: CODE, :inline, {
-                $.pod2pdf($pod.contents);
+                $.pod2pdf-xml($pod.contents);
             }
         }
         when 'T' {
             warn "todo";
-            $.pod2pdf($pod.contents);
+            $.pod2pdf-xml($pod.contents);
         }
         when 'K' {
             warn "todo";
-            $.pod2pdf($pod.contents);
+            $.pod2pdf-xml($pod.contents);
         }
         when 'I' {
             self!tag: Emphasis, {
-                $.pod2pdf($pod.contents);
+                $.pod2pdf-xml($pod.contents);
             }
         }
         when 'N' {
             self!tag: Note, :inline, {
-               $.pod2pdf($pod.contents);
+               $.pod2pdf-xml($pod.contents);
             }
         }
         when 'U' {
             self!tag, Span, :TextDecoration<Underline>, :inline, {
-                $.pod2pdf($pod.contents);
+                $.pod2pdf-xml($pod.contents);
             }
         }
         when 'E' {
-            $.pod2pdf($pod.contents);
+            $.pod2pdf-xml($pod.contents);
         }
         when 'Z' {
             # invisable
@@ -127,52 +127,52 @@ multi method pod2pdf(Pod::FormattingCode $pod) {
             if $href.starts-with('#') {
                 self!tag: Reference, :inline, {
                     self!tag: Link, :$href, :inline, {
-                        $.pod2pdf: $text;
+                        $.pod2pdf-xml: $text;
                     }
                 }
             }
             else {
                 self!tag: Link, :$href, :inline, {
-                    $.pod2pdf: $text;
+                    $.pod2pdf-xml: $text;
                 }
             }
         }
         when 'P' {
             # todo insertion of placed text
             if $.pod2text-inline($pod.contents) -> $href {
-                $.pod2pdf: '(see: ';
+                $.pod2pdf-xml: '(see: ';
                 self!tag: Link, :$href, :inline, {
-                    $.pod2pdf: $href
+                    $.pod2pdf-xml: $href
                 }
-                $.pod2pdf: ')';
+                $.pod2pdf-xml: ')';
             }
         }
         when 'R' {
-            self!replace: $pod, {$.pod2pdf($_)};
+            self!replace: $pod, {$.pod2pdf-xml($_)};
         }
         default {
             warn "unhandled: POD formatting code: $_\<\>";
-            $.pod2pdf: $pod.contents;
+            $.pod2pdf-xml: $pod.contents;
         }
     }
 }
 
-multi method pod2pdf(Pod::Block::Code $pod) {
+multi method pod2pdf-xml(Pod::Block::Code $pod) {
     self!tag: CODE, :Placement<Block>, {
-        $.pod2pdf: $pod.contents;
+        $.pod2pdf-xml: $pod.contents;
     }
 }
 
-multi method pod2pdf(List:D $pod) {
+multi method pod2pdf-xml(List:D $pod) {
     my @lists;
     for $pod.list {
         self!nest-list(@lists, .isa(Pod::Item) ?? .level !! 0);
-        $.pod2pdf($_);
+        $.pod2pdf-xml($_);
     }
     self!nest-list(@lists, 0);
 }
 
-multi method pod2pdf(Str:D $text) {
+multi method pod2pdf-xml(Str:D $text) {
     $!inlining ||= do {
         $!doc.setIndented(False);
         True;
