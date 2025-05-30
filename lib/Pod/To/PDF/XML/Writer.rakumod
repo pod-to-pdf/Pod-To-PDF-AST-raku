@@ -245,8 +245,12 @@ multi method pod2pdf-xml(List:D $pod) {
             default { 0 }
         }
         self!nest-list(@lists, $level);
-        @!numbering.tail++
-            if .isa(Pod::Block) && .config<numbered>;
+        if .isa(Pod::Block) && .config<numbered> {
+            @!numbering.tail++;
+        }
+        else {
+            @!numbering.tail = 0;
+        }
 
         $.pod2pdf-xml($_);
     }

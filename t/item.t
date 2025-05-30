@@ -35,6 +35,10 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
             <Lbl>2</Lbl>
             <LBody>Second numbered sub-item</LBody>
           </LI>
+          <LI>
+            <Lbl>◦</Lbl>
+            <LBody>Un-numbered sub-item</LBody>
+          </LI>
         </L>
       </LBody>
     </LI>
@@ -92,6 +96,7 @@ asdf
 Top Item
 =item2 #  First numbered sub-item
 =item2 #  Second numbered sub-item
+=item2    Un-numbered sub-item
 =end item1
 
 =for item
