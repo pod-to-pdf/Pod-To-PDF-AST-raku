@@ -3,6 +3,9 @@ unit class Pod::To::PDF::XML::Writer;
 use LibXML::Writer;
 use LibXML::Writer::File;
 has LibXML::Writer:D $.doc = LibXML::Writer::File.new;
+
+subset Level where 0..6;
+
 has Str:D @!tags;
 has Str:D $.lang = 'en';
 has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
@@ -10,7 +13,7 @@ has Bool:D $!inlining = False;
 has Bool $.verbose;
 has %.replace;
 
-enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :Note<Note>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong> );
+enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :Note<Note>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
 method render($pod) {
     $!doc.setIndentString('  ');
@@ -39,13 +42,44 @@ multi method pod2pdf-xml(Pod::Block::Named $pod) {
     given $pod.name {
         when 'pod'|'para' {
             $.pod2pdf-xml: $pod.contents;
-       }
+        }
+        when 'TITLE'|'SUBTITLE' {
+            my $tag = $_ eq 'TITLE' ?? Title !! 'H2';
+            self!tag: $tag, {
+                $.pod2pdf-xml($pod.contents.&strip-para());
+            }
+        }
         default {
             warn "ignoring {.raku} block";
             $.pod2pdf-xml($pod.contents);
         }
     }
 }
+
+method !heading($pod, Level:D :$level) {
+
+    my $header-tag = $level
+               ?? 'H' ~ $level
+               !! 'H1';
+    self!tag: $header-tag, {
+        $.pod2pdf-xml($pod);
+    }
+}
+
+# to reduce the common case <Hn><P>Xxxx<P></Hn> -> <Hn>Xxxx</Hn>
+multi sub strip-para(List $_ where +$_ == 1) {
+    .map(&strip-para).List;
+}
+multi sub strip-para(Pod::Block::Para $_) {
+    .contents;
+}
+multi sub strip-para($_) { $_ }
+
+multi method pod2pdf-xml(Pod::Heading $pod) {
+    my $level = min($pod.level, 6);
+    self!heading: $pod.contents.&strip-para(), :$level;
+}
+
 multi method pod2pdf-xml(Pod::Block::Para $pod) {
     self!tag: Paragraph, {
         $.pod2pdf-xml($pod.contents);
