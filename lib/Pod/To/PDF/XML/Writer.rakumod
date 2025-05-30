@@ -7,6 +7,7 @@ has LibXML::Writer:D $.doc = LibXML::Writer::File.new;
 subset Level where 0..6;
 
 has Str:D @!tags;
+has UInt:D @!numbering;
 has Str:D $.lang = 'en';
 has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
 has Bool:D $!inlining = False;
@@ -25,17 +26,6 @@ method render($pod) {
         $.pod2pdf-xml($pod);
     }
     $!doc.endDocument;
-}
-
-method !nest-list(@lists, $level) {
-    while @lists && @lists.tail > $level {
-        self!close-tag(LIST);
-        @lists.pop;
-    }
-    if $level && (!@lists || @lists.tail < $level) {
-        self!open-tag(LIST);
-        @lists.push: $level;
-    }
 }
 
 multi method pod2pdf-xml(Pod::Block::Named $pod) {
@@ -191,16 +181,35 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
     }
 }
 
+multi method pod2pdf-xml(Pod::Defn $pod) {
+    my $number = @!numbering.tail;
+    self!tag: ListItem, :role<Definition>, {
+        if $number {
+            self!tag: Label, {
+                $.pod2pdf-xml($number.Str)
+            }
+        }
+        self!tag: ListBody, {
+            self!tag: Paragraph, :role<Term>, {
+                $.pod2pdf-xml($pod.term);
+            }
+            $.pod2pdf-xml: $pod.contents;
+        }
+    }
+}
+
 multi method pod2pdf-xml(Pod::Item $pod) {
-     my Level $list-level = min($pod.level // 1, 3);
+    my Str() $label = @!numbering.tail || do {
+        my constant BulletPoints = ("\c[BULLET]",
+                                    "\c[WHITE BULLET]",
+                                    '-');
+        BulletPoints[$pod.level-1] || BulletPoints.tail;
+    }
+
     self!tag: ListItem, {
         {
-            my constant BulletPoints = ("\c[BULLET]",
-                                        "\c[WHITE BULLET]",
-                                        '-');
-            my Str $bp = BulletPoints[$list-level - 1];
             self!tag: Label, {
-                $.pod2pdf-xml: $bp;
+                $.pod2pdf-xml: $label;
             }
         }
 
@@ -216,10 +225,29 @@ multi method pod2pdf-xml(Pod::Block::Code $pod) {
     }
 }
 
+method !nest-list(@lists, $level) {
+    while @lists && @lists.tail > $level {
+        self!close-tag(LIST);
+        @lists.pop;
+    }
+    if $level && (!@lists || @lists.tail < $level) {
+        self!open-tag(LIST);
+        @lists.push: $level;
+    }
+}
+
 multi method pod2pdf-xml(List:D $pod) {
     my @lists;
     for $pod.list {
-        self!nest-list(@lists, .isa(Pod::Item) ?? .level !! 0);
+        my $level = do {
+            when Pod::Item { .level }
+            when Pod::Defn { 1 }
+            default { 0 }
+        }
+        self!nest-list(@lists, $level);
+        @!numbering.tail++
+            if .isa(Pod::Block) && .config<numbered>;
+
         $.pod2pdf-xml($_);
     }
     self!nest-list(@lists, 0);
@@ -254,11 +282,13 @@ multi method pod2text(Str $pod) { $pod }
 method !open-tag($tag, *%atts) {
     $!doc.startElement($tag);
     $!doc.writeAttribute(.key, .value) for %atts.sort;
+    @!numbering.push(0);
     @!tags.push: $tag;
 }
 
 method !close-tag(Str:D $tag where @!tags.tail ~~ $tag) {
     @!tags.pop;
+    @!numbering.pop;
     $!doc.endElement;
 }
 

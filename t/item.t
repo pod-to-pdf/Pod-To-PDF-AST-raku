@@ -28,12 +28,12 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
         <P>Top Item</P>
         <L>
           <LI>
-            <Lbl>◦</Lbl>
-            <LBody>First sub-item</LBody>
+            <Lbl>1</Lbl>
+            <LBody>First numbered sub-item</LBody>
           </LI>
           <LI>
-            <Lbl>◦</Lbl>
-            <LBody>Second sub-item</LBody>
+            <Lbl>2</Lbl>
+            <LBody>Second numbered sub-item</LBody>
           </LI>
         </L>
       </LBody>
@@ -90,8 +90,8 @@ asdf
 
 =begin item1
 Top Item
-=item2     First sub-item
-=item2     Second sub-item
+=item2 #  First numbered sub-item
+=item2 #  Second numbered sub-item
 =end item1
 
 =for item
