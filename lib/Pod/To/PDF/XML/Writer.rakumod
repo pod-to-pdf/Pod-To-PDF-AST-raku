@@ -191,6 +191,25 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
     }
 }
 
+multi method pod2pdf-xml(Pod::Item $pod) {
+     my Level $list-level = min($pod.level // 1, 3);
+    self!tag: ListItem, {
+        {
+            my constant BulletPoints = ("\c[BULLET]",
+                                        "\c[WHITE BULLET]",
+                                        '-');
+            my Str $bp = BulletPoints[$list-level - 1];
+            self!tag: Label, {
+                $.pod2pdf-xml: $bp;
+            }
+        }
+
+        self!tag: ListBody, {
+            $.pod2pdf-xml($pod.contents.&strip-para);
+        }
+    }
+}
+
 multi method pod2pdf-xml(Pod::Block::Code $pod) {
     self!tag: CODE, :Placement<Block>, {
         $.pod2pdf-xml: $pod.contents;
