@@ -14,7 +14,7 @@ has Bool:D $!inlining = False;
 has Bool $.verbose;
 has %.replace;
 
-enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :Note<Note>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
+enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :Note<Note>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
 method render($pod) {
     $!doc.setIndentString('  ');
@@ -196,6 +196,96 @@ multi method pod2pdf-xml(Pod::Defn $pod) {
             $.pod2pdf-xml: $pod.contents;
         }
     }
+}
+
+multi method pod2pdf-xml(Pod::Block::Declarator $pod) {
+    my $w := $pod.WHEREFORE;
+
+    my %spec := do given $w {
+        when Method {
+            my @params = .signature.params.skip(1);
+            @params.pop if @params.tail.name eq '%_';
+            %(
+                :type((.multi ?? 'multi ' !! '') ~ 'method'),
+                :code(.name ~ signature2text(@params, .returns)),
+            )
+        }
+        when Sub {
+            %(
+                :type((.multi ?? 'multi ' !! '') ~ 'sub'),
+                :code(.name ~ signature2text(.signature.params, .returns))
+            )
+        }
+        when Attribute {
+            my $code = .gist;
+            $code .= subst('!', '.')
+                if .has_accessor;
+            my $name = .name.subst('$!', '');
+
+            %(:type<attribute>, :$code, :$name, :decl<has>);
+        }
+        when .HOW ~~ Metamodel::EnumHOW {
+            %(:type<enum>, :code(.raku() ~ signature2text($_.enums.pairs)));
+        }
+        when .HOW ~~ Metamodel::ClassHOW {
+            %(:type<class>, :name(.^name), :level(2));
+        }
+        when .HOW ~~ Metamodel::ModuleHOW {
+            %(:type<module>, :name(.^name), :level(2));
+        }
+        when .HOW ~~ Metamodel::SubsetHOW {
+            %(:type<subset>, :code(.raku ~ ' of ' ~ .^refinee().raku));
+        }
+        when .HOW ~~ Metamodel::PackageHOW {
+            %(:type<package>)
+        }
+        default {
+            %()
+        }
+    }
+
+    my Str $type = %spec<type> // '';
+    my Level $level = %spec<level> // 3;
+    my $name = %spec<name>  // $w.?name // '';
+    my $decl = %spec<decl>  // $type;
+    my $code = %spec<code>  // $w.raku;
+
+    self!tag: Division, :role<Declaration>, {
+        self!heading($type.tclc ~ ' ' ~ $name, :$level);
+
+        if $pod.leading -> $leading {
+            self!tag: Paragraph, {
+                $.pod2pdf-xml($leading);
+            }
+        }
+
+        self!tag: CODE, :Placement<Block>, {
+            $.pod2pdf-xml: $decl ~ ' ' ~ $code;
+        }
+
+        if $pod.trailing -> $trailing {
+            self!tag: Paragraph, {
+                $.pod2pdf-xml($trailing);
+            }
+        }
+    }
+}
+
+sub signature2text($params, Mu $returns?) {
+    my constant NL = "\n    ";
+    my $result = '(';
+
+    if $params.elems {
+        $result ~= NL ~ $params.map(&param2text).join(NL) ~ "\n";
+    }
+    $result ~= ')';
+    unless $returns<> =:= Mu {
+        $result ~= " returns " ~ $returns.raku
+    }
+    $result;
+}
+sub param2text($p) {
+    $p.raku ~ ',' ~ ( $p.WHY ?? ' # ' ~ $p.WHY !! '')
 }
 
 multi method pod2pdf-xml(Pod::Item $pod) {
