@@ -131,7 +131,7 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             }
         }
         when 'U' {
-            self!tag, Span, :TextDecoration<Underline>, :inline, {
+            self!tag: Span, :TextDecoration<Underline>, :inline, {
                 $.pod2pdf-xml($pod.contents);
             }
         }
@@ -194,6 +194,38 @@ multi method pod2pdf-xml(Pod::Defn $pod) {
                 $.pod2pdf-xml($pod.term);
             }
             $.pod2pdf-xml: $pod.contents;
+        }
+    }
+}
+
+multi method pod2pdf-xml(Pod::Block::Table $pod) {
+    self!tag: Table, {
+        if $pod.caption -> $caption {
+            self!tag: Caption, {
+                    $.pod2pdf-xml: $caption;
+                }
+            }
+        if $pod.headers -> @headers {
+            self!tag: TableHead, {
+                self!tag: TableRow, {
+                    @headers.map: {
+                         self!tag: TableHeader, {
+                             $.pod2pdf-xml: $_
+                         }
+                     }
+                }
+            }
+        }
+        self!tag: TableBody, {
+            for $pod.contents -> @row {
+                self!tag: TableRow, {
+                    for @row -> $cell {
+                        self!tag: TableData, {
+                            $.pod2pdf-xml: $cell;
+                        }
+                    }
+                }
+            }
         }
     }
 }
