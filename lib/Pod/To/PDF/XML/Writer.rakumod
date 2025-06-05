@@ -150,8 +150,11 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             # invisable
         }
         when 'X' {
-            ...
-            # otherwise X<|> ?
+            my %atts = :role<Index>;
+            %atts<Terms> = .[0].join('|') with $pod.meta;
+            self!tag: Span, |%atts, {
+                $.pod2pdf-xml: $pod.contents;
+            }
         }
         when 'L' {
             my $text = $.pod2text-inline($pod.contents);
@@ -299,7 +302,7 @@ multi method pod2pdf-xml(Pod::Block::Declarator $pod) {
             }
         }
 
-        self!tag: CODE, :Placement<Block>, {
+        self!tag: CODE, :Placement<Block>, :role<Raku>, {
             $.pod2pdf-xml: $decl ~ ' ' ~ $code;
         }
 
@@ -350,7 +353,9 @@ multi method pod2pdf-xml(Pod::Item $pod) {
 }
 
 multi method pod2pdf-xml(Pod::Block::Code $pod) {
-    self!tag: CODE, :Placement<Block>, {
+    my %atts = :Placement<Block>;
+    %atts<role> = .lc with $pod.config<lang>;
+    self!tag: CODE, |%atts, {
         $.pod2pdf-xml: $pod.contents;
     }
 }
