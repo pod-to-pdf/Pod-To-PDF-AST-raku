@@ -10,6 +10,7 @@ has Str:D @!tags;
 has UInt:D @!numbering;
 has Str:D $.lang = 'en';
 has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
+has $!level = 1;
 has Bool:D $!inlining = False;
 has Bool $.verbose;
 has %.replace;
@@ -35,12 +36,19 @@ multi method pod2pdf-xml(Pod::Block::Named $pod) {
         }
         when 'TITLE'|'SUBTITLE' {
             my $tag = $_ eq 'TITLE' ?? Title !! 'H2';
+            temp $!level = $_ eq 'TITLE' ?? 0 !! 1;
             self!tag: $tag, {
                 $.pod2pdf-xml($pod.contents.&strip-para());
             }
         }
         default {
-            warn "ignoring {.raku} block";
+            temp $!level += 1;
+            my $name = do if $_ eq .uc {
+                $!level = 2;
+                .tclc;
+            }
+            else { $_ }
+            self!heading: $name, :$!level;
             $.pod2pdf-xml($pod.contents);
         }
     }
@@ -66,8 +74,8 @@ multi sub strip-para(Pod::Block::Para $_) {
 multi sub strip-para($_) { $_ }
 
 multi method pod2pdf-xml(Pod::Heading $pod) {
-    my $level = min($pod.level, 6);
-    self!heading: $pod.contents.&strip-para(), :$level;
+    temp $!level = min($pod.level, 6);
+    self!heading: $pod.contents.&strip-para(), :$!level;
 }
 
 multi method pod2pdf-xml(Pod::Block::Para $pod) {
