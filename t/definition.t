@@ -12,12 +12,12 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
   <Div role="Declaration">
     <H2>Module Asdf1</H2>
     <P>This is a module</P>
-    <Code Placement="Block">module Asdf1</Code>
+    <Code Placement="Block" role="Raku">module Asdf1</Code>
   </Div>
   <Div role="Declaration">
     <H3>Sub asdf</H3>
     <P>This is a sub</P>
-    <Code Placement="Block">sub asdf(
+    <Code Placement="Block" role="Raku">sub asdf(
     Str $asdf1,
     Str :$asdf2 = &quot;asdf&quot;,
 ) returns Str</Code>
@@ -25,17 +25,17 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
   <Div role="Declaration">
     <H2>Class Asdf2</H2>
     <P>This is a class</P>
-    <Code Placement="Block">class Asdf2</Code>
+    <Code Placement="Block" role="Raku">class Asdf2</Code>
   </Div>
   <Div role="Declaration">
     <H3>Attribute t</H3>
     <P>This is an attribute</P>
-    <Code Placement="Block">has Str $.t</Code>
+    <Code Placement="Block" role="Raku">has Str $.t</Code>
   </Div>
   <Div role="Declaration">
     <H3>Method asdf</H3>
     <P>This is a method</P>
-    <Code Placement="Block">method asdf(
+    <Code Placement="Block" role="Raku">method asdf(
     Str :$asdf = &quot;asdf&quot;,
 ) returns Str</Code>
   </Div>
@@ -43,8 +43,8 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :$doc;
-$writer.render($=pod);
+my Pod::To::PDF::XML::Writer $writer .= new;
+$doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
     'Converts definitions correctly';
 

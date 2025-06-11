@@ -1,32 +1,27 @@
 unit class Pod::To::PDF::XML::Writer;
 
-use LibXML::Writer;
-use LibXML::Writer::File;
-has LibXML::Writer:D $.doc = LibXML::Writer::File.new;
-
 subset Level where 0..6;
 
-has Str:D @!tags;
+has Pair:D @!tags;
 has UInt:D @!numbering;
 has Str:D $.lang = 'en';
 has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
 has $!level = 1;
-has Bool:D $!inlining = False;
+has Bool $!inlining = False;
 has Bool $.verbose;
 has %.replace;
 
-enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :Note<Note>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
+enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FENote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
 method render($pod) {
-    $!doc.setIndentString('  ');
-    $!doc.startDocument;
-    $!doc.writeDTD(Document, :system-id($!dtd));
-    $!doc.setIndented(True);
-    $!doc.writeText("\n");
-    self!tag: Document, :Lang($!lang), {
+    my $ast = self!tag: Document, :Lang($!lang), {
         $.pod2pdf-xml($pod);
     }
-    $!doc.endDocument;
+    '#xml' => [
+        ('!' ~ Document) => %( :system<http://pdf-raku.github.io/dtd/tagged-pdf.dtd> ),
+        "\n",
+        $ast,
+    ]
 }
 
 multi method pod2pdf-xml(Pod::Block::Named $pod) {
@@ -105,7 +100,8 @@ method !replace(Pod::FormattingCode $pod where .type eq 'R', &continue) {
 }
 
 multi method pod2pdf-xml(Pod::Block::Comment $pod) {
-    $!doc.writeComment:  ' ' ~  $.pod2text($pod).trim ~ ' ';
+    self!indent;
+    self!add-content: '#comment' => (' ' ~ $.pod2text($pod).trim ~ ' ');
 }
 
 multi method pod2pdf-xml(Pod::FormattingCode $pod) {
@@ -134,7 +130,7 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             }
         }
         when 'N' {
-            self!tag: Note, :inline, {
+            self!tag: FENote, {
                $.pod2pdf-xml($pod.contents);
             }
         }
@@ -159,17 +155,18 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
         when 'L' {
             my $text = $.pod2text-inline($pod.contents);
             my $href = $pod.meta.head // $text;
-            if $href.starts-with('#') {
-                self!tag: Reference, :inline, {
-                    self!tag: Link, :$href, :inline, {
-                        $.pod2pdf-xml: $text;
-                    }
-                }
-            }
-            else {
+            sub link {
                 self!tag: Link, :$href, :inline, {
                     $.pod2pdf-xml: $text;
                 }
+            }
+            if $href.starts-with('#') {
+                self!tag: Reference, :inline, {
+                    link();
+                }
+            }
+            else {
+                link();
             }
         }
         when 'P' {
@@ -360,26 +357,27 @@ multi method pod2pdf-xml(Pod::Block::Code $pod) {
     }
 }
 
-method !nest-list(@lists, $level) {
-    while @lists && @lists.tail > $level {
+method !nest-list(@levels, $level) {
+    while @levels && @levels.tail > $level {
         self!close-tag(LIST);
-        @lists.pop;
+        @levels.pop;
     }
-    if $level && (!@lists || @lists.tail < $level) {
+    if $level && (!@levels || @levels.tail < $level) {
         self!open-tag(LIST);
-        @lists.push: $level;
+        @levels.push: $level;
     }
 }
 
 multi method pod2pdf-xml(List:D $pod) {
-    my @lists;
+    my @levels;
+
     for $pod.list {
         my $level = do {
             when Pod::Item { .level }
             when Pod::Defn { 1 }
             default { 0 }
         }
-        self!nest-list(@lists, $level);
+        self!nest-list(@levels, $level);
         if .isa(Pod::Block) && .config<numbered> {
             @!numbering.tail++;
         }
@@ -389,15 +387,12 @@ multi method pod2pdf-xml(List:D $pod) {
 
         $.pod2pdf-xml($_);
     }
-    self!nest-list(@lists, 0);
+    self!nest-list(@levels, 0);
 }
 
 multi method pod2pdf-xml(Str:D $text) {
-    $!inlining ||= do {
-        $!doc.setIndented(False);
-        True;
-    }
-    $!doc.writeText: $text;
+    $!inlining = True;
+    self!add-content: $text;
 }
 
 method pod2text-inline($pod) {
@@ -418,30 +413,40 @@ multi method pod2text(Pod::Block $pod) {
 multi method pod2text(List $pod) { $pod.map({$.pod2text($_)}).join }
 multi method pod2text(Str $pod) { $pod }
 
-method !open-tag($tag, *%atts) {
-    $!doc.startElement($tag);
-    $!doc.writeAttribute(.key, .value) for %atts.sort;
-    @!numbering.push(0);
-    @!tags.push: $tag;
+method !indent($n = 0) {
+    my $depth = $n + @!tags;
+    self!add-content: "\n" ~ '  ' x $depth
+        if @!tags;
 }
 
-method !close-tag(Str:D $tag where @!tags.tail ~~ $tag) {
-    @!tags.pop;
+method !open-tag($tag) {
+    self!indent unless $!inlining;
+    @!numbering.push(0);
+    my $tag-ast = $tag => [];
+    @!tags.tail.value.push: $tag-ast if @!tags;
+    @!tags.push: $tag-ast;
+    $tag-ast;
+}
+
+method !close-tag(Str:D $tag where @!tags.tail.key ~~ $tag) {
     @!numbering.pop;
-    $!doc.endElement;
+    self!indent(-1) unless $!inlining;
+    @!tags.pop;
 }
 
 method !tag(Str:D $tag, &code, :$inline, *%atts) {
-    if $inline && !$!inlining {
-        $!inlining = True;
-        $!doc.setIndented(False);
-    }
-    self!open-tag: $tag, |%atts;
+    $!inlining = True if $inline;
+    my Pair $tag-ast := self!open-tag: $tag;
+    $tag-ast.value.append: %atts.sort;
     &code();
     self!close-tag: $tag;
-    if !$inline && $!inlining {
-        $!doc.writeText: "\n";
-        $!doc.setIndented(True);
-        $!inlining = False;
-    }
+    $!inlining = False unless $inline;
+    $tag-ast;
+}
+
+
+method !add-content($c) {
+    die "no active tags" unless @!tags;
+    # note "adding {$c.raku} to { @!tags.tail.key}";
+    @!tags.tail.value.push: $c;
 }

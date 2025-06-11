@@ -1,7 +1,8 @@
 unit class Pod::To::PDF::XML;
 
+use LibXML::Item :&ast-to-xml;
+use LibXML::Writer::Buffer;
 use Pod::To::PDF::XML::Writer;
-use LibXML::Writer::File;
 
 method render (
     $class: $pod,
@@ -18,10 +19,9 @@ method render (
          note '(valid options are: --save-as=)'
              if $show-usage;
     }
-    my LibXML::Writer::File $doc .= new: :file($save-as);
-    my Pod::To::PDF::XML::Writer $writer .= new: :$doc, |c;
-    $writer.render($pod);
-    $save-as eq '-'
-        ?? ''
-        !! $save-as;
+    my Pod::To::PDF::XML::Writer $writer .= new: |c;
+    my $ast = $writer.render($pod);
+    my LibXML::Writer::Buffer $doc .= new;
+    $doc.write($ast);
+    $doc.Str;
 }

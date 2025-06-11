@@ -43,9 +43,9 @@ code
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :$doc;
-$writer.render($=pod);
-'/tmp/out.xml'.IO.spurt: $doc.Str;
+my Pod::To::PDF::XML::Writer $writer .= new;
+my $ast = $writer.render($=pod);
+$doc.write($ast);
 is $doc.Str, $xml,
    'Various types of code blocks convert correctly.';
 

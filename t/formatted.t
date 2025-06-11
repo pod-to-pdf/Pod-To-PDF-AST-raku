@@ -10,8 +10,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
 <Document Lang="en">
   <P>This text is of <Span TextDecoration="Underline">minor significance</Span>.</P>
-  <P>This text is of <Em>major significance</Em>
-.</P>
+  <P>This text is of <Em>major significance</Em>.</P>
   <P>This text is of <Strong>fundamental significance</Strong>.</P>
   <P>This text is verbatim C&lt;with&gt; B&lt;disarmed&gt; Z&lt;formatting&gt;.</P>
   <P>This text is to be replaced.</P>
@@ -24,8 +23,8 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :$doc;
-$writer.render($=pod);
+my Pod::To::PDF::XML::Writer $writer .= new;
+$doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of formatting convert correctly.';
 

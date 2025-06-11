@@ -13,12 +13,12 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
   <Div role="Declaration">
     <H2>Class Magician</H2>
     <P>Base class for magicians</P>
-    <Code Placement="Block">class Magician</Code>
+    <Code Placement="Block" role="Raku">class Magician</Code>
   </Div>
   <Div role="Declaration">
     <H3>Sub duel</H3>
     <P>Fight mechanics</P>
-    <Code Placement="Block">sub duel(
+    <Code Placement="Block" role="Raku">sub duel(
     Magician $a,
     Magician $b,
 )</Code>
@@ -27,9 +27,10 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 };
 
+my Pod::To::PDF::XML::Writer $writer .= new;
+my $ast = $writer.render($=pod);
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :$doc;
-$writer.render($=pod);
+$doc.write($ast);
 is $doc.Str, $xml,
    'Declarators convert correctly.';
 

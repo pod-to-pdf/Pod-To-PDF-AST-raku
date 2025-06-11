@@ -25,16 +25,15 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :$doc, :%replace;
-$writer.render($=pod);
+my Pod::To::PDF::XML::Writer $writer .= new: :%replace;
+$doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of replacement content correctly';
 
 %replace<description> = $=pod;
-$doc .= new;
-$writer .= new: :$doc, :%replace;
+$writer .= new: :%replace;
 dies-ok {
-    $writer.render($=pod, :%replace, :save-as<tmp/replace-bad.pdf>);
+    $writer.render($=pod, :%replace);
 }, 'recursive replacement detected';
 
 
