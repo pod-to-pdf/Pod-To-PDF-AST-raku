@@ -78,7 +78,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::AST $writer .= new;
+my Pod::To::PDF::AST $writer .= new: :indent;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of items convert correctly';

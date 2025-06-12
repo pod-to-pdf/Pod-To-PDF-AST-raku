@@ -27,7 +27,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 };
 
-my Pod::To::PDF::AST $writer .= new;
+my Pod::To::PDF::AST $writer .= new: :indent;
 my $ast = $writer.render($=pod);
 my LibXML::Writer::Buffer $doc .= new;
 $doc.write($ast);

@@ -19,7 +19,7 @@ method render (
          note '(valid options are: --save-as=)'
              if $show-usage;
     }
-    my Pod::To::PDF::AST $writer .= new: |c;
+    my Pod::To::PDF::AST $writer .= new: :indent, |c;
     my $ast = $writer.render($pod);
     my LibXML::Writer::Buffer $doc .= new;
     $doc.write($ast);

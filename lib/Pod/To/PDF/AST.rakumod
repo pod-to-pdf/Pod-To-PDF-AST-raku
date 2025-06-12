@@ -10,6 +10,7 @@ has $!level = 1;
 has Bool $!inlining = False;
 has Bool $.verbose;
 has %.replace;
+has Bool $.indent;
 
 enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FootNote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
@@ -417,9 +418,11 @@ multi method pod2text(List $pod) { $pod.map({$.pod2text($_)}).join }
 multi method pod2text(Str $pod) { $pod }
 
 method !indent($n = 0) {
-    my $depth = $n + @!tags;
-    self!add-content: "\n" ~ '  ' x $depth
-        if @!tags;
+    if $.indent {
+        my $depth = $n + @!tags;
+        self!add-content: "\n" ~ '  ' x $depth
+            if @!tags;
+    }
 }
 
 method !open-tag($tag) {

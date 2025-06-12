@@ -43,7 +43,7 @@ code
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::AST $writer .= new;
+my Pod::To::PDF::AST $writer .= new: :indent;
 my $ast = $writer.render($=pod);
 $doc.write($ast);
 is $doc.Str, $xml,
