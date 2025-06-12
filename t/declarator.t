@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::XML::Writer;
+use Pod::To::PDF::AST;
 
 plan 1;
 
@@ -27,7 +27,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 };
 
-my Pod::To::PDF::XML::Writer $writer .= new;
+my Pod::To::PDF::AST $writer .= new;
 my $ast = $writer.render($=pod);
 my LibXML::Writer::Buffer $doc .= new;
 $doc.write($ast);

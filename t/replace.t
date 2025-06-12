@@ -1,7 +1,7 @@
 use Test;
 plan 2;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::XML::Writer;
+use Pod::To::PDF::AST;
 
 my $title = 'Sample Title';
 my $date = '2025-03-17';
@@ -25,7 +25,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new: :%replace;
+my Pod::To::PDF::AST $writer .= new: :%replace;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of replacement content correctly';

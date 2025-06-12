@@ -13,7 +13,7 @@
     "name": "Pod::To::PDF::XML",
   "provides": {
       "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
-      "Pod::To::PDF::XML::Writer": "lib/Pod/To/PDF/XML/Writer.rakumod"
+      "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod"
   },
   "resources": [
   ],

@@ -1,4 +1,4 @@
-unit class Pod::To::PDF::XML::Writer;
+unit class Pod::To::PDF::AST;
 
 subset Level where 0..6;
 
@@ -11,15 +11,18 @@ has Bool $!inlining = False;
 has Bool $.verbose;
 has %.replace;
 
-enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FENote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
+enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FootNote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
-method render($pod) {
+multi method render(::?CLASS:U: |c) {
+    self.new.render(|c).raku;
+}
+
+multi method render(::?CLASS:D: $pod, |c) {
     my $ast = self!tag: Document, :Lang($!lang), {
         $.pod2pdf-xml($pod);
     }
     '#xml' => [
         ('!' ~ Document) => %( :system<http://pdf-raku.github.io/dtd/tagged-pdf.dtd> ),
-        "\n",
         $ast,
     ]
 }
@@ -130,7 +133,7 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             }
         }
         when 'N' {
-            self!tag: FENote, {
+            self!tag: FootNote, {
                $.pod2pdf-xml($pod.contents);
             }
         }

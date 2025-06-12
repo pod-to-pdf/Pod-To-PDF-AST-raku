@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::XML::Writer;
+use Pod::To::PDF::AST;
 
 plan 1;
 
@@ -29,7 +29,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 };
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::XML::Writer $writer .= new;
+my Pod::To::PDF::AST $writer .= new;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Definitions convert correctly.';
