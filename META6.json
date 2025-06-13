@@ -3,6 +3,7 @@
   "build-depends": [
   ],
   "depends": [
+    "PDF::API6",
     "IETF::RFC_Grammar::URI",
     "LibXML::Writer",
     "File::Temp",
@@ -13,6 +14,8 @@
     "name": "Pod::To::PDF::XML",
   "provides": {
       "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
+      "Pod::To::PDF::ViaAST": "lib/Pod/To/PDF/ViaAST.rakumod",
+      "Pod::To::PDF::ViaAST::Writer": "lib/Pod/To/PDF/ViaAST/Writer.rakumod",
       "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod"
   },
   "resources": [
