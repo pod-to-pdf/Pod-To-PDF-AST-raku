@@ -9,9 +9,7 @@ my $author = 'David Warring';
 my $description = "sample Pod with replaced content";
 my %replace = :$date, :$title, :$author, :$description;
 
-my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
-<Document Lang="en">
+my $xml = q{<Document Lang="en">
   <!-- sample Pod with replaced content -->
   <Title>Sample Title</Title>
   <H2>Replacement Test</H2>
@@ -21,8 +19,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
   <P>2025-03-17</P>
   <H2>Description</H2>
   <P>sample Pod with replaced content;</P>
-</Document>
-};
+</Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
 my Pod::To::PDF::AST $writer .= new: :%replace, :indent;

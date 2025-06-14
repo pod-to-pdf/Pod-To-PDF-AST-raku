@@ -6,9 +6,7 @@ use Pod::To::PDF::AST;
 
 plan 1;
 
-my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
-<Document Lang="en">
+my $xml = q{<Document Lang="en">
   <P>This text is of <Span TextDecoration="Underline">minor significance</Span>.</P>
   <P>This text is of <Em>major significance</Em>.</P>
   <P>This text is of <Strong>fundamental significance</Strong>.</P>
@@ -19,8 +17,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
   <P>This text contains a link with label to <Link href="http://www.google.com/">google</Link>.</P>
   <!-- a real-world sample, taken from Supply.pod6 -->
   <P>A tap on an <Code>on demand</Code> supply will initiate the production of values, and tapping the supply again may result in a new set of values. For example, <Code>Supply.interval</Code> produces a fresh timer with the appropriate interval each time it is tapped. If the tap is closed, the timer simply stops emitting values to that tap.</P>
-</Document>
-};
+</Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
 my Pod::To::PDF::AST $writer .= new: :indent;

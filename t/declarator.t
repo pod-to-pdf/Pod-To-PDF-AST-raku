@@ -6,9 +6,7 @@ use Pod::To::PDF::AST;
 
 plan 1;
 
-my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
-<Document Lang="en">
+my $xml = q{<Document Lang="en">
   <!-- Example taken from docs.raku.org/language/pod#Declarator_blocks -->
   <Div role="Declaration">
     <H2>Class Magician</H2>
@@ -24,8 +22,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 )</Code>
     <P>Magicians only, no mortals.</P>
   </Div>
-</Document>
-};
+</Document>};
 
 my Pod::To::PDF::AST $writer .= new: :indent;
 my $ast = $writer.render($=pod);

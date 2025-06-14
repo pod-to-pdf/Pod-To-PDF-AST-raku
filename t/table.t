@@ -5,9 +5,7 @@ use LibXML::Writer::Buffer;
 use Pod::To::PDF::AST;
 plan 1;
 
-my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
-<Document Lang="en">
+my $xml = q{<Document Lang="en">
   <P>asdf</P>
   <Table>
     <Caption>Table 1</Caption>
@@ -102,8 +100,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
     </TBody>
   </Table>
   <P>asdf</P>
-</Document>
-};
+</Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
 my Pod::To::PDF::AST $writer .= new: :indent;

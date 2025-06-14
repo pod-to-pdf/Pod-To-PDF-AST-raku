@@ -6,9 +6,7 @@ use Pod::To::PDF::AST;
 
 plan 1;
 
-my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Document SYSTEM "http://pdf-raku.github.io/dtd/tagged-pdf.dtd">
-<Document Lang="en">
+my $xml = q{<Document Lang="en">
   <Div role="Declaration">
     <H2>Module Asdf1</H2>
     <P>This is a module</P>
@@ -39,8 +37,7 @@ my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
     Str :$asdf = &quot;asdf&quot;,
 ) returns Str</Code>
   </Div>
-</Document>
-};
+</Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
 my Pod::To::PDF::AST $writer .= new: :indent;

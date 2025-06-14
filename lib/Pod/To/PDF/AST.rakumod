@@ -19,13 +19,9 @@ multi method render(::?CLASS:U: |c) {
 }
 
 multi method render(::?CLASS:D: $pod, |c) {
-    my $ast = self!tag: Document, :Lang($!lang), {
+    self!tag: Document, :Lang($!lang), {
         $.pod2pdf-xml($pod);
     }
-    '#xml' => [
-        ('!' ~ Document) => %( :system<http://pdf-raku.github.io/dtd/tagged-pdf.dtd> ),
-        $ast,
-    ]
 }
 
 multi method pod2pdf-xml(Pod::Block::Named $pod) {
