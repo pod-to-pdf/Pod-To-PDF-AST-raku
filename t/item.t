@@ -10,60 +10,69 @@ my $xml = q{<Document Lang="en">
   <P>asdf</P>
   <L>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Abbreviated 1</LBody>
+      <LBody>
+        <P>Abbreviated 1</P>
+      </LBody>
     </LI>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Abbreviated 2</LBody>
+      <LBody>
+        <P>Abbreviated 2</P>
+      </LBody>
     </LI>
   </L>
   <P>asdf</P>
   <L>
     <LI>
-      <Lbl>•</Lbl>
       <LBody>
         <P>Top Item</P>
         <L>
           <LI>
             <Lbl>1</Lbl>
-            <LBody>First numbered sub-item</LBody>
+            <LBody>
+              <P>First numbered sub-item</P>
+            </LBody>
           </LI>
           <LI>
             <Lbl>2</Lbl>
-            <LBody>Second numbered sub-item</LBody>
+            <LBody>
+              <P>Second numbered sub-item</P>
+            </LBody>
           </LI>
           <LI>
-            <Lbl>◦</Lbl>
-            <LBody>Un-numbered sub-item</LBody>
+            <LBody>
+              <P>Un-numbered sub-item</P>
+            </LBody>
           </LI>
         </L>
       </LBody>
     </LI>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Paragraph item</LBody>
+      <LBody>
+        <P>Paragraph item</P>
+      </LBody>
     </LI>
   </L>
   <P>asdf</P>
   <L>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Block item</LBody>
+      <LBody>
+        <P>Block item</P>
+      </LBody>
     </LI>
   </L>
   <P>asdf</P>
   <L>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Abbreviated</LBody>
+      <LBody>
+        <P>Abbreviated</P>
+      </LBody>
     </LI>
     <LI>
-      <Lbl>•</Lbl>
-      <LBody>Paragraph item</LBody>
+      <LBody>
+        <P>Paragraph item</P>
+      </LBody>
     </LI>
     <LI>
-      <Lbl>•</Lbl>
       <LBody>
         <P>Block item</P>
         <P>with multiple</P>
