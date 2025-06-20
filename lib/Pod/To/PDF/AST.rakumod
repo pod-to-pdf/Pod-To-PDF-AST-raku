@@ -3,7 +3,7 @@ unit class Pod::To::PDF::AST;
 subset Level where 0..6;
 
 has Pair:D @!tags;
-has UInt:D @!numbering;
+has UInt:D @!numbering = 0;
 has Str:D $.lang = 'en';
 has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
 has $!level = 1;
@@ -12,7 +12,7 @@ has Bool $.verbose;
 has %.replace;
 has Bool $.indent;
 
-enum Tags ( :Artifact<Artifact>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FootNote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
+enum Tags ( :Artifact<Artifact>, :BlockQuote<BlockQuote>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FootNote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
 multi method render(::?CLASS:U: |c) {
     self.new.render(|c).raku;
@@ -20,20 +20,20 @@ multi method render(::?CLASS:U: |c) {
 
 multi method render(::?CLASS:D: $pod, |c) {
     self!tag: Document, :Lang($!lang), {
-        $.pod2pdf-xml($pod);
+        $.read($pod);
     }
 }
 
-multi method pod2pdf-xml(Pod::Block::Named $pod) {
+multi method read(Pod::Block::Named $pod) {
     given $pod.name {
         when 'pod'|'para' {
-            $.pod2pdf-xml: $pod.contents;
+            $.read: $pod.contents;
         }
         when 'TITLE'|'SUBTITLE' {
             my $tag = $_ eq 'TITLE' ?? Title !! 'H2';
             temp $!level = $_ eq 'TITLE' ?? 0 !! 1;
             self!tag: $tag, {
-                $.pod2pdf-xml($pod.contents.&strip-para());
+                $.read($pod.contents.&strip-para());
             }
         }
         default {
@@ -44,7 +44,7 @@ multi method pod2pdf-xml(Pod::Block::Named $pod) {
             }
             else { $_ }
             self!heading: $name, :$!level;
-            $.pod2pdf-xml($pod.contents);
+            $.read($pod.contents);
         }
     }
 }
@@ -55,7 +55,7 @@ method !heading($pod, Level:D :$level) {
                ?? 'H' ~ $level
                !! 'H1';
     self!tag: $header-tag, {
-        $.pod2pdf-xml($pod);
+        $.read($pod);
     }
 }
 
@@ -68,14 +68,14 @@ multi sub strip-para(Pod::Block::Para $_) {
 }
 multi sub strip-para($_) { $_ }
 
-multi method pod2pdf-xml(Pod::Heading $pod) {
+multi method read(Pod::Heading $pod) {
     temp $!level = min($pod.level, 6);
     self!heading: $pod.contents.&strip-para(), :$!level;
 }
 
-multi method pod2pdf-xml(Pod::Block::Para $pod) {
+multi method read(Pod::Block::Para $pod) {
     self!tag: Paragraph, {
-        $.pod2pdf-xml($pod.contents);
+        $.read($pod.contents);
     }
 }
 
@@ -99,48 +99,48 @@ method !replace(Pod::FormattingCode $pod where .type eq 'R', &continue) {
     $rv;
 }
 
-multi method pod2pdf-xml(Pod::Block::Comment $pod) {
+multi method read(Pod::Block::Comment $pod) {
     self!indent;
     self!add-content: '#comment' => (' ' ~ $.pod2text($pod).trim ~ ' ');
 }
 
-multi method pod2pdf-xml(Pod::FormattingCode $pod) {
+multi method read(Pod::FormattingCode $pod) {
     given $pod.type {
         when 'B' {
             self!tag: Strong, :inline, {
-                $.pod2pdf-xml($pod.contents);
+                $.read($pod.contents);
             }
         }
         when 'C' {
             self!tag: CODE, :inline, {
-                $.pod2pdf-xml($pod.contents);
+                $.read($pod.contents);
             }
         }
         when 'T' {
             warn "todo";
-            $.pod2pdf-xml($pod.contents);
+            $.read($pod.contents);
         }
         when 'K' {
             warn "todo";
-            $.pod2pdf-xml($pod.contents);
+            $.read($pod.contents);
         }
         when 'I' {
             self!tag: Emphasis, {
-                $.pod2pdf-xml($pod.contents);
+                $.read($pod.contents);
             }
         }
         when 'N' {
             self!tag: FootNote, {
-               $.pod2pdf-xml($pod.contents);
+               $.read($pod.contents);
             }
         }
         when 'U' {
-            self!tag: Span, :TextDecoration<Underline>, :inline, {
-                $.pod2pdf-xml($pod.contents);
+            self!tag: Span, :TextDecorationType<Underline>, :inline, {
+                $.read($pod.contents);
             }
         }
         when 'E' {
-            $.pod2pdf-xml($pod.contents);
+            $.read($pod.contents);
         }
         when 'Z' {
             # invisable
@@ -149,7 +149,7 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             my %atts = :role<Index>;
             %atts<Terms> = .[0].join('|') with $pod.meta;
             self!tag: Span, |%atts, {
-                $.pod2pdf-xml: $pod.contents;
+                $.read: $pod.contents;
             }
         }
         when 'L' {
@@ -157,7 +157,7 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
             my $href = $pod.meta.head // $text;
             sub link {
                 self!tag: Link, :$href, :inline, {
-                    $.pod2pdf-xml: $text;
+                    $.read: $text;
                 }
             }
             if $href.starts-with('#') {
@@ -172,45 +172,41 @@ multi method pod2pdf-xml(Pod::FormattingCode $pod) {
         when 'P' {
             # todo insertion of placed text
             if $.pod2text-inline($pod.contents) -> $href {
-                $.pod2pdf-xml: '(see: ';
+                $.read: '(see: ';
                 self!tag: Link, :$href, :inline, {
-                    $.pod2pdf-xml: $href
+                    $.read: $href
                 }
-                $.pod2pdf-xml: ')';
+                $.read: ')';
             }
         }
         when 'R' {
-            self!replace: $pod, {$.pod2pdf-xml($_)};
+            self!replace: $pod, {$.read($_)};
         }
         default {
             warn "unhandled: POD formatting code: $_\<\>";
-            $.pod2pdf-xml: $pod.contents;
+            $.read: $pod.contents;
         }
     }
 }
 
-multi method pod2pdf-xml(Pod::Defn $pod) {
+multi method read(Pod::Defn $pod) {
     my $number = @!numbering.tail;
-    self!tag: ListItem, :role<Definition>, {
-        if $number {
-            self!tag: Label, {
-                $.pod2pdf-xml($number.Str)
-            }
+    self!tag: ListItem, :role<DT>, {
+        # ISO 32000-2 Table 368 Recommends using Lbl to enclose
+        self!tag: Label, :role<Term>, :Placement<Block>, {
+            $.read($pod.term);
         }
-        self!tag: ListBody, {
-            self!tag: Paragraph, :role<Term>, {
-                $.pod2pdf-xml($pod.term);
-            }
-            $.pod2pdf-xml: $pod.contents;
+        self!tag: ListBody, :role<Definition>, {
+            $.read: $pod.contents;
         }
     }
 }
 
-multi method pod2pdf-xml(Pod::Block::Table $pod) {
+multi method read(Pod::Block::Table $pod) {
     self!tag: Table, {
         if $pod.caption -> $caption {
             self!tag: Caption, {
-                    $.pod2pdf-xml: $caption;
+                    $.read: $caption;
                 }
             }
         if $pod.headers -> @headers {
@@ -218,7 +214,7 @@ multi method pod2pdf-xml(Pod::Block::Table $pod) {
                 self!tag: TableRow, {
                     @headers.map: {
                          self!tag: TableHeader, {
-                             $.pod2pdf-xml: $_
+                             $.read: $_
                          }
                      }
                 }
@@ -229,7 +225,7 @@ multi method pod2pdf-xml(Pod::Block::Table $pod) {
                 self!tag: TableRow, {
                     for @row -> $cell {
                         self!tag: TableData, {
-                            $.pod2pdf-xml: $cell;
+                            $.read: $cell;
                         }
                     }
                 }
@@ -238,7 +234,7 @@ multi method pod2pdf-xml(Pod::Block::Table $pod) {
     }
 }
 
-multi method pod2pdf-xml(Pod::Block::Declarator $pod) {
+multi method read(Pod::Block::Declarator $pod) {
     my $w := $pod.WHEREFORE;
 
     my %spec := do given $w {
@@ -295,17 +291,17 @@ multi method pod2pdf-xml(Pod::Block::Declarator $pod) {
 
         if $pod.leading -> $leading {
             self!tag: Paragraph, {
-                $.pod2pdf-xml($leading);
+                $.read($leading);
             }
         }
 
         self!tag: CODE, :Placement<Block>, :role<Raku>, {
-            $.pod2pdf-xml: $decl ~ ' ' ~ $code;
+            $.read: $decl ~ ' ' ~ $code;
         }
 
         if $pod.trailing -> $trailing {
             self!tag: Paragraph, {
-                $.pod2pdf-xml($trailing);
+                $.read($trailing);
             }
         }
     }
@@ -328,32 +324,25 @@ sub param2text($p) {
     $p.raku ~ ',' ~ ( $p.WHY ?? ' # ' ~ $p.WHY !! '')
 }
 
-multi method pod2pdf-xml(Pod::Item $pod) {
-    my Str() $label = @!numbering.tail || do {
-        my constant BulletPoints = ("\c[BULLET]",
-                                    "\c[WHITE BULLET]",
-                                    '-');
-        BulletPoints[$pod.level-1] || BulletPoints.tail;
-    }
-
+multi method read(Pod::Item $pod) {
+    my $number = @!numbering.tail;
     self!tag: ListItem, {
-        {
+         if $number {
             self!tag: Label, {
-                $.pod2pdf-xml: $label;
+                $.read($number.Str)
             }
         }
-
         self!tag: ListBody, {
-            $.pod2pdf-xml($pod.contents.&strip-para);
+            $.read($pod.contents);
         }
     }
 }
 
-multi method pod2pdf-xml(Pod::Block::Code $pod) {
+multi method read(Pod::Block::Code $pod) {
     my %atts = :Placement<Block>;
     %atts<role> = .lc with $pod.config<lang>;
     self!tag: CODE, |%atts, {
-        $.pod2pdf-xml: $pod.contents;
+        $.read: $pod.contents;
     }
 }
 
@@ -368,7 +357,7 @@ method !nest-list(@levels, $level) {
     }
 }
 
-multi method pod2pdf-xml(List:D $pod) {
+multi method read(List:D $pod) {
     my @levels;
 
     for $pod.list {
@@ -385,12 +374,12 @@ multi method pod2pdf-xml(List:D $pod) {
             @!numbering.tail = 0;
         }
 
-        $.pod2pdf-xml($_);
+        $.read($_);
     }
     self!nest-list(@levels, 0);
 }
 
-multi method pod2pdf-xml(Str:D $text) {
+multi method read(Str:D $text) {
     $!inlining = True;
     self!add-content: $text;
 }
