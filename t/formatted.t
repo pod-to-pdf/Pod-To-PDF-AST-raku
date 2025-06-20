@@ -7,7 +7,7 @@ use Pod::To::PDF::AST;
 plan 1;
 
 my $xml = q{<Document Lang="en">
-  <P>This text is of <Span TextDecoration="Underline">minor significance</Span>.</P>
+  <P>This text is of <Span TextDecorationType="Underline">minor significance</Span>.</P>
   <P>This text is of <Em>major significance</Em>.</P>
   <P>This text is of <Strong>fundamental significance</Strong>.</P>
   <P>This text is verbatim C&lt;with&gt; B&lt;disarmed&gt; Z&lt;formatting&gt;.</P>
