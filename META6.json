@@ -14,7 +14,8 @@
     "name": "Pod::To::PDF::XML",
   "provides": {
       "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
-      "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod"
+      "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod",
+      "Pod::To::PDF::AST::Metadata": "lib/Pod/To/PDF/AST/Metadata.rakumod"
   },
   "resources": [
   ],

@@ -5,7 +5,7 @@ use LibXML::Writer::Buffer;
 use Pod::To::PDF::AST;
 
 plan 1;
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document Subject="for Pod::To::PDF" Title="Heading tests" Lang="en">
   <Title>Heading tests</Title>
   <H2>for <Link href="Pod::To::PDF">Pod::To::PDF</Link></H2>
   <H1>Abbreviated heading1</H1>

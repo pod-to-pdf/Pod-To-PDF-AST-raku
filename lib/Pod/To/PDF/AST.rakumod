@@ -1,5 +1,8 @@
 unit class Pod::To::PDF::AST;
 
+use Pod::To::PDF::AST::Metadata;
+also does Pod::To::PDF::AST::Metadata;
+
 subset Level where 0..6;
 
 has Pair:D @!tags;
@@ -18,10 +21,12 @@ multi method render(::?CLASS:U: |c) {
     self.new.render(|c).raku;
 }
 
-multi method render(::?CLASS:D: $pod, |c) {
-    self!tag: Document, :Lang($!lang), {
+multi method render(::?CLASS:D: $pod, :$tag = Document, |c) {
+    my Pair $doc = self!tag: $tag, :Lang($!lang), {
         $.read($pod);
     }
+    $doc.value.prepend: %.info.sort;
+    $doc;
 }
 
 multi method read(Pod::Block::Named $pod) {
@@ -30,19 +35,22 @@ multi method read(Pod::Block::Named $pod) {
             $.read: $pod.contents;
         }
         when 'TITLE'|'SUBTITLE' {
-            my $tag = $_ eq 'TITLE' ?? Title !! 'H2';
-            temp $!level = $_ eq 'TITLE' ?? 0 !! 1;
-            self!tag: $tag, {
-                $.read($pod.contents.&strip-para());
-            }
+            my Bool $toc = $_ eq 'TITLE';
+            temp $!level = $_ eq 'TITLE' ?? 0 !! 2;
+            self.metadata(.lc) ||= $.pod2text-inline($pod.contents);
+            self!heading($pod.contents.&strip-para, :$toc, :$!level);
         }
         default {
+            my $name = $_;
             temp $!level += 1;
-            my $name = do if $_ eq .uc {
+            if $name eq .uc {
+                if $name ~~ 'VERSION'|'NAME'|'AUTHOR' {
+                    self.metadata(.lc) ||= $.pod2text-inline($pod.contents);
+                }
                 $!level = 2;
-                .tclc;
+                $name .= tclc;
             }
-            else { $_ }
+
             self!heading: $name, :$!level;
             $.read($pod.contents);
         }
@@ -53,7 +61,7 @@ method !heading($pod, Level:D :$level) {
 
     my $header-tag = $level
                ?? 'H' ~ $level
-               !! 'H1';
+               !! 'Title';
     self!tag: $header-tag, {
         $.read($pod);
     }
