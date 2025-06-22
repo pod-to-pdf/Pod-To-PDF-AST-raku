@@ -199,12 +199,13 @@ multi method read(Pod::FormattingCode $pod) {
 
 multi method read(Pod::Defn $pod) {
     my $number = @!numbering.tail;
-    self!tag: ListItem, :role<DT>, {
-        # ISO 32000-2 Table 368 Recommends using Lbl to enclose
-        self!tag: Label, :role<Term>, :Placement<Block>, {
+    # - ISO 32000-2 Table 368 Recommends using Lbl to enclose
+    # - Match princexml tagging of HTML definition lists
+    self!tag: ListItem, :role<DL-DIV>, {
+        self!tag: Label, :role<DT>, :Placement<Block>, {
             $.read($pod.term);
         }
-        self!tag: ListBody, :role<Definition>, {
+        self!tag: ListBody, :role<DD>, {
             $.read: $pod.contents;
         }
     }

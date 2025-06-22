@@ -8,15 +8,15 @@ plan 1;
 
 my $xml = q{<Document Lang="en">
   <L>
-    <LI role="DT">
-      <Lbl Placement="Block" role="Term">Happy</Lbl>
-      <LBody role="Definition">
+    <LI role="DL-DIV">
+      <Lbl Placement="Block" role="DT">Happy</Lbl>
+      <LBody role="DD">
         <P>When you're not blue.</P>
       </LBody>
     </LI>
-    <LI role="DT">
-      <Lbl Placement="Block" role="Term">Blue</Lbl>
-      <LBody role="Definition">
+    <LI role="DL-DIV">
+      <Lbl Placement="Block" role="DT">Blue</Lbl>
+      <LBody role="DD">
         <P>When you're not happy.</P>
       </LBody>
     </LI>
