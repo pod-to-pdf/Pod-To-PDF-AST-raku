@@ -15,6 +15,7 @@ my $xml = q{<Document Lang="en">
   <P>This has invisible text.</P>
   <P>This text contains a link to <Link href="http://www.google.com/">http://www.google.com/</Link>.</P>
   <P>This text contains a link with label to <Link href="http://www.google.com/">google</Link>.</P>
+  <P>This has <Code TextDecorationType="Underline" role="Keyboard">keyboard</Code> and <Code role="Terminal">terminal</Code> text.</P>
   <!-- a real-world sample, taken from Supply.pod6 -->
   <P>A tap on an <Code>on demand</Code> supply will initiate the production of values, and tapping the supply again may result in a new set of values. For example, <Code>Supply.interval</Code> produces a fresh timer with the appropriate interval each time it is tapped. If the tap is closed, the timer simply stops emitting values to that tap.</P>
 </Document>};
@@ -42,6 +43,8 @@ This has Z<blabla>invisible text.
 This text contains a link to L<http://www.google.com/>.
 
 This text contains a link with label to L<google|http://www.google.com/>.
+
+This has K<keyboard> and T<terminal> text.
 
 =comment a real-world sample, taken from Supply.pod6
 

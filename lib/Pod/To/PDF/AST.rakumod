@@ -120,17 +120,19 @@ multi method read(Pod::FormattingCode $pod) {
             }
         }
         when 'C' {
-            self!tag: CODE, :inline, {
+            self!tag: CODE, {
                 $.read($pod.contents);
             }
         }
         when 'T' {
-            warn "todo";
-            $.read($pod.contents);
+            self!tag: CODE, :role<Terminal>, {
+                $.read($pod.contents);
+            }
         }
         when 'K' {
-            warn "todo";
-            $.read($pod.contents);
+            self!tag: CODE, :role<Keyboard>, :TextDecorationType<Underline>, {
+                $.read($pod.contents);
+            }
         }
         when 'I' {
             self!tag: Emphasis, {
