@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::AST;
+use Pod::To::PdfAST;
 
 plan 1;
 
@@ -24,7 +24,7 @@ my $xml = q{<Document Lang="en">
   </Div>
 </Document>};
 
-my Pod::To::PDF::AST $writer .= new: :indent;
+my Pod::To::PdfAST $writer .= new: :indent;
 my $ast = $writer.render($=pod);
 my LibXML::Writer::Buffer $doc .= new;
 $doc.write($ast);

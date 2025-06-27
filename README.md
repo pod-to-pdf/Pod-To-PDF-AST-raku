@@ -1,29 +1,29 @@
 TITLE
 =====
 
-Pod::To::PDF::XML
+Pod::To::PdfXML
 
 SUBTITLE
 ========
 
-Render Pod as PDF (Experimental)
+Convert Pod to PdfXML, or PdfAST (Experimental)
 
 Description
 -----------
 
-Renders Pod to an intermediate XML format for PDF rendering
+Renders Pod to a formats for PdfAST rendering
 
 Usage
 -----
 
 From command line:
 
-    $ raku --doc=PDF::XML lib/to/class.rakumod | xml2pdf.raku
+    $ raku --doc=PdfAST lib/to/class.rakumod | ast2pdf.raku
 
 From Raku:
 
 ```raku
-use Pod::To::PDF::XML;
+use Pod::To::PdfXML;
 
 =NAME foobar.pl
 =Name foobar.pl
@@ -37,7 +37,7 @@ my $xml = pod2pdf-xml($=pod);
 Exports
 -------
 
-    class Pod::To::PDF::XML;
+    class Pod::To::PdfXML;
     sub pod2pdf-xml; # See below
 
 Subroutines
