@@ -9,7 +9,7 @@
     "File::Temp",
     "URI"
   ],
-  "description": "Render Pod as intermediate PDF-XML",
+  "description": "Render Pod to intermediate PDF AST or XML representation",
   "license": "Artistic-2.0",
   "name": "Pod::To::PDF::AST",
   "provides": {

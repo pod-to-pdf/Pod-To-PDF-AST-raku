@@ -1,24 +1,24 @@
 TITLE
 =====
 
-Pod::To::PDF::XML
+Pod::To::PDF::AST
 
 SUBTITLE
 ========
 
-Convert Pod to PdfXML, or PdfAST (Experimental)
+Convert Pod to PDF::AST or PDF::XML (Experimental)
 
 Description
 -----------
 
-Renders Pod to a formats for PdfAST rendering
+Renders Pod to a formats for PDF::AST rendering
 
 Usage
 -----
 
 From command line:
 
-    $ raku --doc=PdfAST lib/to/class.rakumod | ast2pdf.raku
+    $ raku --doc=PDF::AST lib/to/class.rakumod | ast2pdf.raku
 
 From Raku:
 
