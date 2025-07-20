@@ -1,7 +1,7 @@
 TITLE
 =====
 
-Pod::To::PdfXML
+Pod::To::PDF::XML
 
 SUBTITLE
 ========
@@ -23,7 +23,7 @@ From command line:
 From Raku:
 
 ```raku
-use Pod::To::PdfXML;
+use Pod::To::PDF::XML;
 
 =NAME foobar.pl
 =Name foobar.pl
@@ -37,7 +37,7 @@ my $xml = pod2pdf-xml($=pod);
 Exports
 -------
 
-    class Pod::To::PdfXML;
+    class Pod::To::PDF::XML;
     sub pod2pdf-xml; # See below
 
 Subroutines

@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PdfAST;
+use Pod::To::PDF::AST;
 
 plan 1;
 
@@ -22,7 +22,7 @@ my $xml = q{<Document Lang="en">
 
 my %replace = 'is to be replaced' => 'has been replaced';
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PdfAST $writer .= new: :indent, :%replace;
+my Pod::To::PDF::AST $writer .= new: :indent, :%replace;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of formatting convert correctly.';

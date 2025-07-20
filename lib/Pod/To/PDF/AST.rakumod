@@ -1,7 +1,7 @@
-unit class Pod::To::PdfAST;
+unit class Pod::To::PDF::AST;
 
-use Pod::To::PdfAST::Metadata;
-also does Pod::To::PdfAST::Metadata;
+use Pod::To::PDF::AST::Metadata;
+also does Pod::To::PDF::AST::Metadata;
 
 subset Level where 0..6;
 
@@ -87,24 +87,23 @@ multi method read(Pod::Block::Para $pod) {
     }
 }
 
-has %!replacing;
+has Bool %!replacing;
 method !replace(Pod::FormattingCode $pod where .type eq 'R', &continue) {
     my $place-holder = $.pod2text($pod.contents);
 
     die "unable to recursively replace R\<$place-holder\>"
-         if %!replacing{$place-holder}++;
+         if %!replacing{$place-holder};
+    temp  %!replacing{$place-holder} = True;
 
     my $new-pod = %!replace{$place-holder};
-    without $new-pod {
+
+    $new-pod //= do {
         note "replacement not specified for R\<$place-holder\>"
            if $!verbose;
-        $_ = $pod.contents;
+        $pod.contents;
     }
 
-    my $rv := &continue($new-pod);
-
-    %!replacing{$place-holder}:delete;
-    $rv;
+    &continue($new-pod);
 }
 
 multi method read(Pod::Block::Comment $pod) {
@@ -157,7 +156,7 @@ multi method read(Pod::FormattingCode $pod) {
         }
         when 'X' {
             my %atts = :role<Index>;
-            %atts<Terms> = .[0].join('|') with $pod.meta;
+            %atts<Terms> = .join('|') with $pod.meta.head;
             self!tag: Span, |%atts, {
                 $.read: $pod.contents;
             }
@@ -445,7 +444,6 @@ method !tag(Str:D $tag, &code, :$inline, *%atts) {
     $!inlining = False unless $inline;
     $tag-ast;
 }
-
 
 method !add-content($c) {
     die "no active tags" unless @!tags;

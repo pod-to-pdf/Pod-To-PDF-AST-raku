@@ -1,8 +1,8 @@
-unit class Pod::To::PdfXML;
+unit class Pod::To::PDF::XML;
 
 use LibXML::Item :&ast-to-xml;
 use LibXML::Writer::Buffer;
-use Pod::To::PdfAST;
+use Pod::To::PDF::AST;
 
 method render (
     $class: $pod,
@@ -19,7 +19,7 @@ method render (
          note '(valid options are: --/indent)'
              if $show-usage;
     }
-    my Pod::To::PdfAST $writer .= new: :$indent, |c;
+    my Pod::To::PDF::AST $writer .= new: :$indent, |c;
     my $ast = $writer.render($pod);
     my LibXML::Writer::Buffer $doc .= new;
     $doc.write($ast);

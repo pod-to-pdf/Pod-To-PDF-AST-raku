@@ -11,15 +11,15 @@
   ],
   "description": "Render Pod as intermediate PDF-XML",
   "license": "Artistic-2.0",
-    "name": "Pod::To::PdfXML",
+  "name": "Pod::To::PDF::AST",
   "provides": {
-      "Pod::To::PdfXML": "lib/Pod/To/PdfXML.rakumod",
-      "Pod::To::PdfAST": "lib/Pod/To/PdfAST.rakumod",
-      "Pod::To::PdfAST::Metadata": "lib/Pod/To/PdfAST/Metadata.rakumod"
+      "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
+      "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod",
+      "Pod::To::PDF::AST::Metadata": "lib/Pod/To/PDF/AST/Metadata.rakumod"
   },
   "resources": [
   ],
-  "source-url": "git://github.com/pod-to-pdf/Pod-To-PdfXML-raku.git",
+  "source-url": "git://github.com/pod-to-pdf/Pod-To-PDF-XML-raku.git",
   "tags": [
     "pdf",
     "pod",

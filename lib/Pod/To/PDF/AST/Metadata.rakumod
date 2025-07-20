@@ -1,4 +1,4 @@
-unit role Pod::To::PdfAST::Metadata;
+unit role Pod::To::PDF::AST::Metadata;
 
 has Str %!metadata;
 has Str %.info is built;
