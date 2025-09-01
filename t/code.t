@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::AST;
+use Pod::To::XML::AST;
 
 plan 1;
 
@@ -40,7 +40,7 @@ code
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::AST $writer .= new: :indent;
+my Pod::To::XML::AST $writer .= new: :indent;
 my $ast = $writer.render($=pod);
 $doc.write($ast);
 is $doc.Str, $xml,

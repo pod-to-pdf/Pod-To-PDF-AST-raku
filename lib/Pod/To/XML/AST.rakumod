@@ -1,7 +1,7 @@
-unit class Pod::To::PDF::AST;
+unit class Pod::To::XML::AST;
 
-use Pod::To::PDF::AST::Metadata;
-also does Pod::To::PDF::AST::Metadata;
+use Pod::To::XML::AST::Metadata;
+also does Pod::To::XML::AST::Metadata;
 
 subset Level where 0..6;
 

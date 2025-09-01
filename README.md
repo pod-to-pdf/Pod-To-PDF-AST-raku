@@ -1,29 +1,30 @@
 TITLE
 =====
 
-Pod::To::PDF::AST
+Pod::To::XML
 
 SUBTITLE
 ========
 
-Convert Pod to PDF::AST or PDF::XML (Experimental)
+Pod to XML centric
 
 Description
 -----------
 
-Renders Pod to a formats for PDF::AST rendering
+XML centric Pod rendering.
 
 Usage
 -----
 
 From command line:
 
-    $ raku --doc=PDF::AST lib/to/class.rakumod | ast2pdf.raku
+    $ raku --doc=XML lib/to/class.rakumod | ast2pdf.raku
+    $ raku --doc=XML lib/to/class.rakumod --save-as=class.html | ast2pdf.raku
 
 From Raku:
 
 ```raku
-use Pod::To::PDF::XML;
+use Pod::To::XML;
 
 =NAME foobar.pl
 =Name foobar.pl
@@ -37,7 +38,7 @@ my $xml = pod2pdf-xml($=pod);
 Exports
 -------
 
-    class Pod::To::PDF::XML;
+    class Pod::To::XML;
     sub pod2pdf-xml; # See below
 
 Subroutines

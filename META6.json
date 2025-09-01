@@ -3,23 +3,20 @@
   "build-depends": [
   ],
   "depends": [
-    "PDF::API6",
-    "IETF::RFC_Grammar::URI",
-    "LibXML::Writer",
-    "File::Temp",
-    "URI"
+    "LibXML",
+    "LibXSLT"
   ],
-  "description": "Render Pod to intermediate PDF AST or XML representation",
+    "description": "Render Pod to intermediate XML or HTML, etc",
   "license": "Artistic-2.0",
-  "name": "Pod::To::PDF::AST",
+  "name": "Pod::To::XML::AST",
   "provides": {
-      "Pod::To::PDF::XML": "lib/Pod/To/PDF/XML.rakumod",
-      "Pod::To::PDF::AST": "lib/Pod/To/PDF/AST.rakumod",
-      "Pod::To::PDF::AST::Metadata": "lib/Pod/To/PDF/AST/Metadata.rakumod"
+      "Pod::To::XML": "lib/Pod/To/XML.rakumod",
+      "Pod::To::XML::AST": "lib/Pod/To/XML/AST.rakumod",
+      "Pod::To::XML::AST::Metadata": "lib/Pod/To/XML/AST/Metadata.rakumod"
   },
   "resources": [
   ],
-  "source-url": "git://github.com/pod-to-pdf/Pod-To-PDF-XML-raku.git",
+  "source-url": "git://github.com/pod-to-pdf/Pod-To-XML-XML-raku.git",
   "tags": [
     "pdf",
     "pod",

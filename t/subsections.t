@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::PDF::AST;
+use Pod::To::XML::AST;
 
 plan 1;
 
@@ -16,7 +16,7 @@ my $xml = q{<Document Lang="en">
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::PDF::AST $writer .= new: :indent;
+my Pod::To::XML::AST $writer .= new: :indent;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of paragraphs nest correctly';
