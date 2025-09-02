@@ -3,7 +3,7 @@
   "build-depends": [
   ],
   "depends": [
-    "LibXML",
+    "LibXML:ver<0.10.18+>",
     "LibXSLT"
   ],
     "description": "Render Pod to intermediate XML or HTML, etc",
@@ -15,6 +15,7 @@
       "Pod::To::XML::AST::Metadata": "lib/Pod/To/XML/AST/Metadata.rakumod"
   },
   "resources": [
+        "tagged-pdf.xsl"
   ],
   "source-url": "git://github.com/pod-to-pdf/Pod-To-XML-raku.git",
   "tags": [
