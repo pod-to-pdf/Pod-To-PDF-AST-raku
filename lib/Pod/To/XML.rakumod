@@ -15,7 +15,7 @@ my subset Format of Str:D where format{$_}:exists;
 
 proto transform(Pair:D, Str:D, | --> Str:D) {*}
 
-multi transform($ast, $fmt, Str:D :xls($file)!, :$indent) {
+multi transform($ast, $fmt, Str:D :xls($file)!, :$indent!) {
     my LibXML::Element $root = $ast.&ast-to-xml;
     my LibXML::Document $doc .= new: :$root;
     my LibXSLT $xslt .= new();
@@ -26,11 +26,11 @@ multi transform($ast, $fmt, Str:D :xls($file)!, :$indent) {
         !! $results.Str: :format($indent)
 }
 
-multi transform($ast, 'xml', :indent(:$format), |c) {
+multi transform($ast, 'xml', :indent($format)) {
     $ast.&ast-to-xml.Str: :$format;
 }
 
-multi transform($ast, 'json', :indent($pretty), |c) {
+multi transform($ast, 'json', :indent($pretty)) {
     $ast.&to-json: :$pretty;
 }
 
@@ -58,7 +58,7 @@ sub get-opts {
     }
     note '(valid options are: --/indent --format=xml|html|json --xls= --save-as=)'
         if $show-usage;
-    %opts<format> //= do given %opts<save-as> {
+    %opts<format> //= do given %opts<save-as>//'' {
         when rx:i/'.'jso?n$/   { 'json' }
         when rx:i/'.'x?html?$/ { 'html' }
         default { 'xml' }
@@ -75,18 +75,15 @@ sub pod-render (
     Str :$save-as,
     |c
 ) {
-    state %cache{Any};
-    %cache{$pod} //= do {
-    }
     my Pod::To::XML::AST $writer .= new: :$indent, |c;
     my Pair $ast = $writer.render($pod);
-    $ast.&transform($format, |c).&output($save-as);
+    $ast.&transform($format, :$indent, |c).&output($save-as);
 }
 
-method render($pod, Str :$save-as, |c) {
-    state $rendered //= do {
-        my %opts = get-opts;
-        pod-render($pod, |%opts, |c);
-    }
+my %rendered{Any:D};
+
+method render($pod, |c) {
+    state %cache{Any};
+    %cache{$pod} //= pod-render($pod, |get-opts, |c);
 }
 
