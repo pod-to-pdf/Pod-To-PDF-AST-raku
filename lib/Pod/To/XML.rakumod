@@ -13,24 +13,25 @@ sub format { enum <xml html json raku> }
 my subset Format of Str:D where format{$_}:exists;
 
 
-proto transform(Pair:D, Str:D, :indent($) --> Str:D) {*}
+proto transform(Pair:D, Str:D, | --> Str:D) {*}
 
-multi transform($ast, 'xml', :indent(:$format)) {
-    $ast.&ast-to-xml.Str: :$format;
-}
-
-multi transform($ast, 'json', :indent($pretty)) {
-    $ast.&to-json: :$pretty;
-}
-
-multi transform($ast, 'html', :indent(:$format)) {
+multi transform($ast, $fmt, Str:D :xls($file)!, :$indent) {
     my LibXML::Element $root = $ast.&ast-to-xml;
     my LibXML::Document $doc .= new: :$root;
     my LibXSLT $xslt .= new();
-    my Str:D  $file = %?RESOURCES<tagged-pdf.xsl>.IO.path;
     my LibXSLT::Stylesheet $stylesheet = $xslt.parse-stylesheet(:$file);
     my LibXSLT::Document::Xslt() $results = $stylesheet.transform(:$doc);
-    $results.Str: :$format;
+    $fmt eq 'json'
+        ?? $results.ast.&transform('json', :$indent)
+        !! $results.Str: :format($indent)
+}
+
+multi transform($ast, 'xml', :indent(:$format), |c) {
+    $ast.&ast-to-xml.Str: :$format;
+}
+
+multi transform($ast, 'json', :indent($pretty), |c) {
+    $ast.&to-json: :$pretty;
 }
 
 sub xml-escape(Str:D $_) {
@@ -50,17 +51,20 @@ sub get-opts {
     my %opts;
     for @*ARGS {
         when /^'--'('/')?(indent)$/      { %opts{$1} = ! $0.so }
-        when /^'--'(save\-as)'='(.+)$/   { %opts{$0} = $1.Str }
+        when /^'--'(save\-as|xls)'='(.+)$/   { %opts{$0} = $1.Str }
         when /^'--'(format)'='(xml|html?|json)$/   { %opts{$0} = $1.Str }
+        when /^'--'(format)'='(XML|HTML?|JSON)$/   { %opts{$0} = $1.Str.lc }
         default {  $show-usage = True; note "ignoring $_ argument" }
     }
-    note '(valid options are: --/indent --format= --save-as=)'
+    note '(valid options are: --/indent --format=xml|html|json --xls= --save-as=)'
         if $show-usage;
     %opts<format> //= do given %opts<save-as> {
         when rx:i/'.'jso?n$/   { 'json' }
         when rx:i/'.'x?html?$/ { 'html' }
         default { 'xml' }
     }
+    %opts<xls> //= %?RESOURCES<tagged-pdf.xsl>.IO.path
+                     if %opts<format> eq 'html';
     %opts;
 }
 
@@ -76,7 +80,7 @@ sub pod-render (
     }
     my Pod::To::XML::AST $writer .= new: :$indent, |c;
     my Pair $ast = $writer.render($pod);
-    $ast.&transform($format, :$indent).&output($save-as);
+    $ast.&transform($format, |c).&output($save-as);
 }
 
 method render($pod, Str :$save-as, |c) {
