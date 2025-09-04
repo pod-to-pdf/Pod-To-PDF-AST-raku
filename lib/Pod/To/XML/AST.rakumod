@@ -356,13 +356,14 @@ multi method read(Pod::Block::Code $pod) {
     }
 }
 
-method !nest-list(@levels, $level) {
+method !nest-list(@levels, $level, :$defn) {
     while @levels && @levels.tail > $level {
         self!close-tag(LIST);
         @levels.pop;
     }
     if $level && (!@levels || @levels.tail < $level) {
-        self!open-tag(LIST);
+        my $tag-ast = self!open-tag(LIST);
+        $tag-ast.value.push: (:role<DL>) if $defn;
         @levels.push: $level;
     }
 }
@@ -371,12 +372,13 @@ multi method read(List:D $pod) {
     my @levels;
 
     for $pod.list {
+        my Bool $defn;
         my $level = do {
             when Pod::Item { .level }
-            when Pod::Defn { 1 }
+            when Pod::Defn { $defn = True; 1 }
             default { 0 }
         }
-        self!nest-list(@levels, $level);
+        self!nest-list(@levels, $level, :$defn);
         if .isa(Pod::Block) && .config<numbered> {
             @!numbering.tail++;
         }

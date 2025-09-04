@@ -34,11 +34,29 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:template match="L/LI/Lbl">
     <!-- Discard superflous Lbl tags in list items -->
   </xsl:template>
+
+  <xsl:template match="L[@role='DL']">
+    <dl><xsl:apply-templates/></dl>
+  </xsl:template>
+
+  <xsl:template match="Lbl[@role='DT']">
+    <dt><xsl:apply-templates/></dt>
+  </xsl:template>
+
+  <xsl:template match="LBody[@role='DD']">
+    <dd><xsl:apply-templates/></dd>
+  </xsl:template>
+
+  <xsl:template match="LI[@role='DL-DIV']">
+    <xsl:apply-templates/>
+  </xsl:template>
+
   <xsl:template match="L">
     <ul>
       <xsl:apply-templates/>
     </ul>
   </xsl:template>
+
   <xsl:template match="FENote|Note">
     <!-- /FENote /Note -> /fn -->
     <fn>

@@ -15,9 +15,13 @@ my subset Format of Str:D where format{$_}:exists;
 
 proto transform(Pair:D, Str:D, | --> Str:D) {*}
 
-multi transform($ast, $fmt, Str:D :xls($file)!, :$indent!) {
+sub doc(Pair:D $ast --> LibXML::Document:D) {
     my LibXML::Element $root = $ast.&ast-to-xml;
     my LibXML::Document $doc .= new: :$root;
+}
+
+multi transform($ast, $fmt, Str:D :xls($file)!, :$indent!) {
+    my LibXML::Document $doc = $ast.&doc;
     my LibXSLT $xslt .= new();
     my LibXSLT::Stylesheet $stylesheet = $xslt.parse-stylesheet(:$file);
     my LibXSLT::Document::Xslt() $results = $stylesheet.transform(:$doc);
@@ -27,7 +31,7 @@ multi transform($ast, $fmt, Str:D :xls($file)!, :$indent!) {
 }
 
 multi transform($ast, 'xml', :indent($format)) {
-    $ast.&ast-to-xml.Str: :$format;
+    $ast.&doc.Str: :$format;
 }
 
 multi transform($ast, 'json', :indent($pretty)) {
@@ -50,7 +54,8 @@ sub get-opts {
     my Bool $show-usage;
     my %opts;
     for @*ARGS {
-        when /^'--'('/')?(indent)$/      { %opts{$1} = ! $0.so }
+        when /^'--'('/')?(indent|style)$/    { %opts{$1} = ! $0.so }
+        when /^'--'('/')?(html|json)$/        { %opts<format> = $0 ?? 'xml' !! $1.Str }
         when /^'--'(save\-as|xls)'='(.+)$/   { %opts{$0} = $1.Str }
         when /^'--'(format)'='(xml|html?|json)$/   { %opts{$0} = $1.Str }
         when /^'--'(format)'='(XML|HTML?|JSON)$/   { %opts{$0} = $1.Str.lc }
@@ -79,8 +84,6 @@ sub pod-render (
     my Pair $ast = $writer.render($pod);
     $ast.&transform($format, :$indent, |c).&output($save-as);
 }
-
-my %rendered{Any:D};
 
 method render($pod, |c) {
     state %cache{Any};
