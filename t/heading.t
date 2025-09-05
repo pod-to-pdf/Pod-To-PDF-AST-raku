@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::AST;
+use Pod::To::XML::Writer;
 
 plan 1;
 my $xml = q{<Document Subject="for Pod::To::XML" Title="Heading tests" Lang="en">
@@ -28,7 +28,7 @@ my $xml = q{<Document Subject="for Pod::To::XML" Title="Heading tests" Lang="en"
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::AST $writer .= new: :indent;
+my Pod::To::XML::Writer $writer .= new: :indent;
 $doc.write: $writer.render($=pod);
 is $doc.Str, $xml,
    'Various types of headings convert correctly';

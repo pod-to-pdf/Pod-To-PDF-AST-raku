@@ -1,7 +1,7 @@
-unit class Pod::To::XML::AST;
+unit class Pod::To::XML::Writer;
 
-use Pod::To::XML::AST::Metadata;
-also does Pod::To::XML::AST::Metadata;
+use Pod::To::XML::Writer::Metadata;
+also does Pod::To::XML::Writer::Metadata;
 
 subset Level where 0..6;
 

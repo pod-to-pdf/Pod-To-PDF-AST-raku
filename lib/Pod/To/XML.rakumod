@@ -6,28 +6,35 @@ use LibXML::Item :&ast-to-xml;
 use LibXSLT;
 use LibXSLT::Stylesheet;
 use LibXSLT::Document;
-use Pod::To::XML::AST;
+use Pod::To::XML::Writer;
 use JSON::Fast;
 
 sub format { enum <xml html json raku> }
 my subset Format of Str:D where format{$_}:exists;
 
-
-proto transform(Pair:D, Str:D, | --> Str:D) {*}
-
 sub doc(Pair:D $ast --> LibXML::Document:D) {
-    my LibXML::Element $root = $ast.&ast-to-xml;
-    my LibXML::Document $doc .= new: :$root;
+    my LibXML::Item $root = $ast.&ast-to-xml;
+    $root.isa(LibXML::Document)
+        ?? $root
+        !! LibXML::Document.new: :$root;
 }
 
-multi transform($ast, $fmt, Str:D :xls($file)!, :$indent!) {
+sub xslt(Pair $ast, $file --> Pair) {
     my LibXML::Document $doc = $ast.&doc;
     my LibXSLT $xslt .= new();
     my LibXSLT::Stylesheet $stylesheet = $xslt.parse-stylesheet(:$file);
     my LibXSLT::Document::Xslt() $results = $stylesheet.transform(:$doc);
-    $fmt eq 'json'
-        ?? $results.ast.&transform('json', :$indent)
-        !! $results.Str: :format($indent)
+    $results.ast;
+}
+
+proto transform(Pair:D, Str:D, |c --> Str:D) {*}
+
+multi transform($ast, 'html', Str:D :xls($file) = %?RESOURCES<tagged-pdf.xsl>.IO.path, :indent($format)!) {
+    $ast.&xslt($file).&doc.Str: :html, :$format;
+}
+
+multi transform($ast, $type, Str:D :$xls!, |c) {
+    $ast.&xslt($xls).&transform($type, |c)
 }
 
 multi transform($ast, 'xml', :indent($format)) {
@@ -35,7 +42,7 @@ multi transform($ast, 'xml', :indent($format)) {
 }
 
 multi transform($ast, 'json', :indent($pretty)) {
-    $ast.&to-json: :$pretty;
+    $ast.&to-json: :$pretty
 }
 
 sub xml-escape(Str:D $_) {
@@ -50,43 +57,39 @@ multi output(Str:D $s, Str:D $save-as!) {
 }
 multi output(Str:D $s, Str:U) { $s }
 
-sub get-opts {
+sub get-opts is hidden-from-backtrace {
     my Bool $show-usage;
     my %opts;
     for @*ARGS {
         when /^'--'('/')?(indent|style)$/    { %opts{$1} = ! $0.so }
-        when /^'--'('/')?(html|json)$/        { %opts<format> = $0 ?? 'xml' !! $1.Str }
+        when /^'--'('/')?(html|json)$/       { %opts<format> = $1.Str unless $0 }
         when /^'--'(save\-as|xls)'='(.+)$/   { %opts{$0} = $1.Str }
-        when /^'--'(format)'='(xml|html?|json)$/   { %opts{$0} = $1.Str }
-        when /^'--'(format)'='(XML|HTML?|JSON)$/   { %opts{$0} = $1.Str.lc }
+        when /^'--'(format)'='[:i(xml|html|json)]$/   { %opts{$0} = $1.lc }
         default {  $show-usage = True; note "ignoring $_ argument" }
     }
-    note '(valid options are: --/indent --format=xml|html|json --xls= --save-as=)'
+    fail '(valid options are: --/indent --format=xml|html|json --xls= --save-as=)'
         if $show-usage;
-    %opts<format> //= do given %opts<save-as>//'' {
+    %opts<format> //= do with %opts<save-as> {
         when rx:i/'.'jso?n$/   { 'json' }
         when rx:i/'.'x?html?$/ { 'html' }
-        default { 'xml' }
-    }
-    %opts<xls> //= %?RESOURCES<tagged-pdf.xsl>.IO.path
-                     if %opts<format> eq 'html';
+    } // 'xml';
     %opts;
 }
 
-sub pod-render (
+our sub render (
     $pod,
     Bool :$indent is copy = True,
-    Str:D :$format!,
+    Str:D :$format = 'xml',
     Str :$save-as,
     |c
 ) {
-    my Pod::To::XML::AST $writer .= new: :$indent, |c;
+    my Pod::To::XML::Writer $writer .= new: |c;
     my Pair $ast = $writer.render($pod);
     $ast.&transform($format, :$indent, |c).&output($save-as);
 }
 
-method render($pod, |c) {
+method render($pod, |c) is hidden-from-backtrace {
     state %cache{Any};
-    %cache{$pod} //= pod-render($pod, |get-opts, |c);
+    %cache{$pod} //= render($pod, |get-opts, |c);
 }
 

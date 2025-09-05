@@ -2,12 +2,13 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::AST;
+use Pod::To::XML;
 
-plan 1;
+plan 2;
 
-my $xml = q{<Document Lang="en">
-  <L>
+my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
+<Document Lang="en">
+  <L role="DL">
     <LI role="DL-DIV">
       <Lbl Placement="Block" role="DT">Happy</Lbl>
       <LBody role="DD">
@@ -21,13 +22,27 @@ my $xml = q{<Document Lang="en">
       </LBody>
     </LI>
   </L>
-</Document>};
+</Document>
+};
 
-my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::AST $writer .= new: :indent;
-$doc.write: $writer.render($=pod);
-is $doc.Str, $xml,
-   'Definitions convert correctly.';
+my $html = q{<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head>
+<body><dl>
+<dt>Happy</dt>
+<dd><P>When you're not blue.</P></dd>
+<dt>Blue</dt>
+<dd><P>When you're not happy.</P></dd>
+</dl></body>
+</html>
+};
+
+given Pod::To::XML::render($=pod) {
+    .&is: $xml, 'Definitions convert to XML correctly.';
+}
+
+given Pod::To::XML::render($=pod, :format<html>) {
+    .&is: $html, 'Definitions convert to HTML correctly.';
+}
 
 =begin pod
 

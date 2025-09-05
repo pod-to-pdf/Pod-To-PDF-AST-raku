@@ -57,19 +57,13 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     </ul>
   </xsl:template>
 
-  <xsl:template match="FENote|Note">
-    <!-- /FENote /Note -> /fn -->
-    <fn>
-      <xsl:apply-templates select="@*|node()"/>
-    </fn>
-  </xsl:template>
   <xsl:template match="Span[@TextDecorationType='Underline']">
     <!-- underline -->
     <u>
        <xsl:apply-templates/>
     </u>
   </xsl:template>
-  <xsl:template match="TOC|DocumentFragment|Formula|Form|Part|Art|Sect|Index">
+  <xsl:template match="TOC|DocumentFragment|Formula|Form|Part|Art|Sect|Index|FENote|Note">
     <!-- currently omitted block tags -->
     <div>
       <xsl:attribute name="class">
