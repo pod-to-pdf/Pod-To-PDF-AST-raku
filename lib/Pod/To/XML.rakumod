@@ -12,11 +12,12 @@ use JSON::Fast;
 sub format { enum <xml html json raku> }
 my subset Format of Str:D where format{$_}:exists;
 
-sub doc(Pair:D $ast --> LibXML::Document:D) {
-    my LibXML::Item $root = $ast.&ast-to-xml;
-    $root.isa(LibXML::Document)
-        ?? $root
-        !! LibXML::Document.new: :$root;
+sub doc(Pair:D $_ --> LibXML::Document:D) {
+    given .&ast-to-xml {
+        when LibXML::Document { $_ }
+        when LibXML::Element  { LibXML::Document.new: :root($_) }
+        default { fail "Unable to process: {.WHAT.raku}" }
+    }
 }
 
 sub xslt(Pair $ast, $file --> Pair) {
