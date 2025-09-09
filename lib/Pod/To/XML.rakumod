@@ -27,10 +27,10 @@ sub xslt(Pair $ast, $file --> Pair) {
     $results.ast;
 }
 
-proto transform(Pair:D, Str:D, |c --> Str:D) {*}
+proto transform(|c --> Str:D) {*}
 
-multi transform($ast, 'html', Str:D :xls($file) = %?RESOURCES<tagged-pdf.xsl>.IO.path, :indent($format)!) {
-    $ast.&xslt($file).&doc.Str: :html, :$format;
+multi transform($ast, 'html', Str:D :$xls = %?RESOURCES<tagged-pdf.xsl>.IO.path, :indent($format)!) {
+    $ast.&xslt($xls).&doc.Str: :$format, :html;
 }
 
 multi transform($ast, $type, Str:D :$xls!, |c) {
@@ -61,10 +61,10 @@ sub get-opts is hidden-from-backtrace {
     my Bool $show-usage;
     my %opts;
     for @*ARGS {
-        when /^'--'('/')?(indent|style)$/    { %opts{$1} = ! $0.so }
-        when /^'--'('/')?(html|json)$/       { %opts<format> = $1.Str unless $0 }
-        when /^'--'(save\-as|xls)'='(.+)$/   { %opts{$0} = $1.Str }
-        when /^'--'(format)'='[:i(xml|html|json)]$/   { %opts{$0} = $1.lc }
+        when /^'--'('/')?(indent|style)$/       { %opts{$1} = ! $0.so }
+        when /^'--'('/')?[:i(html|json|xml)]$/  { %opts<format> = $1.lc unless $0 }
+        when /^'--format='[:i(xml|html|json)]$/ { %opts<format> = $0.lc }
+        when /^'--'(save\-as|xls)'='(.+)$/      { %opts{$0} = $1.Str }
         default {  $show-usage = True; note "ignoring $_ argument" }
     }
     fail '(valid options are: --/indent --format=xml|html|json --xls= --save-as=)'
