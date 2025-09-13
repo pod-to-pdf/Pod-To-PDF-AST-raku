@@ -85,7 +85,7 @@ our sub render (
     |c
 ) {
     my Pod::To::XML::Reader $reader .= new: |c;
-    my Pair $ast = $reader.render($pod);
+    my Pair $ast = $reade.render($pod);
     $ast.&transform($format, :$indent, |c).&output($save-as);
 }
 

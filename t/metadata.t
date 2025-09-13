@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Writer;
+use Pod::To::XML::Reader;
 
 plan 1;
 
@@ -19,8 +19,8 @@ my $xml = q{<Document Author="David Warring" Subject="Subtitle from POD" Title="
 
 my LibXML::Writer::Buffer $doc .= new;
 my %replace = :where<POD>;
-my Pod::To::XML::Writer $writer .= new: :indent, :%replace;
-$doc.write: $writer.render($=pod);
+my Pod::To::XML::Reader $reader .= new: :indent, :%replace;
+$doc.write: $reader.render($=pod);
 is $doc.Str, $xml,
    'Various types of metadata convert correctly';
 

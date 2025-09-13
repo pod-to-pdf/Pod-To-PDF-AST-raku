@@ -1,4 +1,4 @@
-unit role Pod::To::XML::Writer::Metadata;
+unit role Pod::To::XML::Reader::Metadata;
 
 has Str %!metadata;
 has Str %.info is built;

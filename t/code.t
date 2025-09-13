@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Writer;
+use Pod::To::XML::Reader;
 
 plan 1;
 
@@ -40,8 +40,8 @@ code
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::Writer $writer .= new: :indent;
-my $ast = $writer.render($=pod);
+my Pod::To::XML::Reader $reader .= new: :indent;
+my $ast = $reader.render($=pod);
 $doc.write($ast);
 is $doc.Str, $xml,
    'Various types of code blocks convert correctly.';

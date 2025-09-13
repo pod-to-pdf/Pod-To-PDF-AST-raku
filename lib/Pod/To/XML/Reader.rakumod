@@ -1,7 +1,7 @@
-unit class Pod::To::XML::Writer;
+unit class Pod::To::XML::Reader;
 
-use Pod::To::XML::Writer::Metadata;
-also does Pod::To::XML::Writer::Metadata;
+use Pod::To::XML::Reader::Metadata;
+also does Pod::To::XML::Reader::Metadata;
 
 subset Level where 0..6;
 
@@ -199,7 +199,6 @@ multi method read(Pod::FormattingCode $pod) {
 }
 
 multi method read(Pod::Defn $pod) {
-    my $number = @!numbering.tail;
     # - ISO 32000-2 Table 368 Recommends using Lbl to enclose
     # - Match princexml tagging of HTML definition lists
     self!tag: ListItem, :role<DL-DIV>, {

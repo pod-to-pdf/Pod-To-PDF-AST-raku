@@ -9,11 +9,11 @@
   ],
     "description": "Render Pod to XML, HTML, etc",
   "license": "Artistic-2.0",
-  "name": "Pod::To::XML::Writer",
+  "name": "Pod::To::XML::Reader",
   "provides": {
       "Pod::To::XML": "lib/Pod/To/XML.rakumod",
-      "Pod::To::XML::Writer": "lib/Pod/To/XML/Writer.rakumod",
-      "Pod::To::XML::Writer::Metadata": "lib/Pod/To/XML/Writer/Metadata.rakumod"
+      "Pod::To::XML::Reader": "lib/Pod/To/XML/Reader.rakumod",
+      "Pod::To::XML::Reader::Metadata": "lib/Pod/To/XML/Reader/Metadata.rakumod"
   },
   "resources": [
         "tagged-pdf.xsl"

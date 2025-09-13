@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Writer;
+use Pod::To::XML::Reader;
 
 plan 1;
 
@@ -24,8 +24,8 @@ my $xml = q{<Document Lang="en">
   </Div>
 </Document>};
 
-my Pod::To::XML::Writer $writer .= new: :indent;
-my $ast = $writer.render($=pod);
+my Pod::To::XML::Reader $reader .= new: :indent;
+my $ast = $reader.render($=pod);
 my LibXML::Writer::Buffer $doc .= new;
 $doc.write($ast);
 is $doc.Str, $xml,
