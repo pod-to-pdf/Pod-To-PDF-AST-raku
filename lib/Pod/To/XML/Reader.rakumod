@@ -6,9 +6,7 @@ also does Pod::To::XML::Reader::Metadata;
 subset Level where 0..6;
 
 has Pair:D @!tags;
-has UInt:D @!numbering = 0;
 has Str:D $.lang = 'en';
-has Str  $.dtd = 'http://pdf-raku.github.io/dtd/tagged-pdf.dtd';
 has $!level = 1;
 has Bool $!inlining = False;
 has Bool $.verbose;
@@ -333,12 +331,11 @@ sub param2text($p) {
     $p.raku ~ ',' ~ ( $p.WHY ?? ' # ' ~ $p.WHY !! '')
 }
 
-multi method read(Pod::Item $pod) {
-    my $number = @!numbering.tail;
+multi method read(Pod::Item $pod, :$num) {
     self!tag: ListItem, {
-         if $number {
+         if $num {
             self!tag: Label, {
-                $.read($number.Str)
+                $.read($num.Str)
             }
         }
         self!tag: ListBody, {
@@ -357,37 +354,51 @@ multi method read(Pod::Block::Code $pod) {
 
 method !nest-list(@levels, $level, :$defn) {
     while @levels && @levels.tail > $level {
-        self!close-tag(LIST);
+        self!close-tag: @!tags.tail.key;
         @levels.pop;
     }
     if $level && (!@levels || @levels.tail < $level) {
-        my $tag-ast = self!open-tag(LIST);
-        $tag-ast.value.push: (:role<DL>) if $defn;
+        given self!open-tag(LIST) {
+            .value.push: (:role<DL>) if $defn;
+        }
+
         @levels.push: $level;
     }
 }
 
+method !read-block($pod, :@levels!, :@seq!) {
+    my Bool $defn;
+    my $list-level = do given $pod {
+        when Pod::Item { .level }
+        when Pod::Defn { $defn = True; 1 }
+        default { 0 }
+    }
+    self!nest-list: @levels, $list-level, :$defn;
+
+    my $num := @seq.tail;
+    if $pod.config<numbered> {
+        $num++;
+    }
+    else {
+        $num = 0;
+    }
+
+    $.read($pod, :$num);
+}
+
 multi method read(List:D $pod) {
     my @levels;
+    my @seq = 0;
 
     for $pod.list {
-        my Bool $defn;
-        my $level = do {
-            when Pod::Item { .level }
-            when Pod::Defn { $defn = True; 1 }
-            default { 0 }
-        }
-        self!nest-list(@levels, $level, :$defn);
-        if .isa(Pod::Block) && .config<numbered> {
-            @!numbering.tail++;
+        if .isa(Pod::Block) && !.isa(Pod::FormattingCode) {
+            self!read-block($_, :@levels, :@seq);
         }
         else {
-            @!numbering.tail = 0;
+            $.read($_);
         }
-
-        $.read($_);
     }
-    self!nest-list(@levels, 0);
+    self!nest-list: @levels, 0;
 }
 
 multi method read(Str:D $text) {
@@ -423,7 +434,6 @@ method !indent($n = 0) {
 
 method !open-tag($tag) {
     self!indent unless $!inlining;
-    @!numbering.push(0);
     my $tag-ast = $tag => [];
     @!tags.tail.value.push: $tag-ast if @!tags;
     @!tags.push: $tag-ast;
@@ -431,7 +441,6 @@ method !open-tag($tag) {
 }
 
 method !close-tag(Str:D $tag where @!tags.tail.key ~~ $tag) {
-    @!numbering.pop;
     self!indent(-1) unless $!inlining;
     @!tags.pop;
 }
