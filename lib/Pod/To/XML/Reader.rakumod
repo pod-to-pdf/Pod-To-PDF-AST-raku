@@ -12,6 +12,7 @@ has Bool $!inlining = False;
 has Bool $.verbose;
 has %.replace;
 has Bool $.indent;
+has @!item-nums;
 
 enum Tags ( :Artifact<Artifact>, :BlockQuote<BlockQuote>, :Caption<Caption>, :CODE<Code>, :Division<Div>, :Document<Document>, :Header<H>, :Label<Lbl>, :LIST<L>, :ListBody<LBody>, :ListItem<LI>, :FootNote<FENote>, :Reference<Reference>, :Paragraph<P>, :Quote<Quote>, :Span<Span>, :Section<Sect>, :Table<Table>, :TableBody<TBody>, :TableHead<THead>, :TableHeader<TH>, :TableData<TD>, :TableRow<TR>, :Link<Link>, :Emphasis<Em>, :Strong<Strong>, :Title<Title> );
 
@@ -331,15 +332,16 @@ sub param2text($p) {
     $p.raku ~ ',' ~ ( $p.WHY ?? ' # ' ~ $p.WHY !! '')
 }
 
-multi method read(Pod::Item $pod, :$num) {
+multi method read(Pod::Item $pod) {
+    my $num = @!item-nums.grep({$_}).join('.');
     self!tag: ListItem, {
          if $num {
             self!tag: Label, {
-                $.read($num.Str)
+                $.read: $num
             }
         }
         self!tag: ListBody, {
-            $.read($pod.contents);
+            $.read: $pod.contents;
         }
     }
 }
@@ -352,10 +354,11 @@ multi method read(Pod::Block::Code $pod) {
     }
 }
 
-method !nest-list(@levels, $level, :$defn) {
+method !nest-list($level, :$defn, :@levels!) {
     while @levels && @levels.tail > $level {
         self!close-tag: @!tags.tail.key;
         @levels.pop;
+        @!item-nums.pop;
     }
     if $level && (!@levels || @levels.tail < $level) {
         given self!open-tag(LIST) {
@@ -363,42 +366,45 @@ method !nest-list(@levels, $level, :$defn) {
         }
 
         @levels.push: $level;
+        @!item-nums.push: 0;
     }
 }
 
-method !read-block($pod, :@levels!, :@seq!) {
+method !read-block($pod, :@levels!) {
     my Bool $defn;
     my $list-level = do given $pod {
         when Pod::Item { .level }
         when Pod::Defn { $defn = True; 1 }
         default { 0 }
     }
-    self!nest-list: @levels, $list-level, :$defn;
+    self!nest-list: $list-level, :@levels;
 
-    my $num := @seq.tail;
-    if $pod.config<numbered> {
-        $num++;
-    }
-    else {
-        $num = 0;
+    if $list-level {
+        with @!item-nums.tail -> $num is rw {
+            if $pod.config<numbered> {
+                $num++;
+            }
+            else {
+                $num = 0;
+            }
+        }
     }
 
-    $.read($pod, :$num);
+    $.read($pod);
 }
 
 multi method read(List:D $pod) {
     my @levels;
-    my @seq = 0;
 
     for $pod.list {
         if .isa(Pod::Block) && !.isa(Pod::FormattingCode) {
-            self!read-block($_, :@levels, :@seq);
+            self!read-block($_, :@levels);
         }
         else {
             $.read($_);
         }
     }
-    self!nest-list: @levels, 0;
+    self!nest-list: 0, :@levels;
 }
 
 multi method read(Str:D $text) {
