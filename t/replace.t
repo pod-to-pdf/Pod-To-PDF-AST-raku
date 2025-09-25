@@ -1,7 +1,7 @@
 use Test;
 plan 2;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Reader;
+use PDF::Render::Tree::Reader::Pod;
 
 my $title = 'Sample Title';
 my $date = '2025-03-17';
@@ -22,7 +22,7 @@ my $xml = q{<Document Author="David Warring" Subject="Replacement Test" Title="S
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::Reader $reader .= new: :%replace, :indent;
+my PDF::Render::Tree::Reader::Pod $reader .= new: :%replace, :indent;
 $doc.write: $reader.render($=pod);
 is $doc.Str, $xml,
    'Various types of replacement content correctly';

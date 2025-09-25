@@ -6,7 +6,7 @@ use LibXML::Item :&ast-to-xml;
 use LibXSLT;
 use LibXSLT::Stylesheet;
 use LibXSLT::Document;
-use Pod::To::XML::Reader;
+use PDF::Render::Tree::Reader::Pod;
 use JSON::Fast;
 
 sub format { enum <xml html json raku> }
@@ -84,13 +84,13 @@ our sub render (
     Str :$save-as,
     |c
 ) {
-    my Pod::To::XML::Reader $reader .= new: |c;
-    my Pair $ast = $reader.render($pod);
+    my PDF::Render::Tree::Reader::Pod $pod-reader .= new: |c;
+    my Pair $ast = $pod-reader.render($pod);
     $ast.&transform($format, :$indent, |c).&output($save-as);
 }
 
 method render($pod, |c) is hidden-from-backtrace {
     state %cache{Any};
-    %cache{$pod} //= render($pod, |get-opts, |c);
+    %cache{$pod} //= $pod.&render(|get-opts, |c);
 }
 

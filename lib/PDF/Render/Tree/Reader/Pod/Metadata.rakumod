@@ -1,4 +1,4 @@
-unit role Pod::To::XML::Reader::Metadata;
+unit role PDF::Render::Tree::Reader::Pod::Metadata;
 
 has Str %!metadata;
 has Str %.info is built;

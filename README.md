@@ -6,12 +6,13 @@ Pod::To::XML
 SUBTITLE
 ========
 
-Pod to XML centric
+Output a PDF Rendering tree as XML or HTML
 
 Description
 -----------
 
-XML centric Pod rendering.
+Outputs an intermediate PDF::Render::Tree AST as XML, or with a lightweight
+transform to HTML.
 
 Usage
 -----

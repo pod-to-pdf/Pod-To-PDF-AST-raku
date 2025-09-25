@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use Pod::To::XML::Reader;
+use PDF::Render::Tree::Reader::Pod;
 
 plan 1;
 
@@ -40,7 +40,7 @@ my $xml = q{<Document Lang="en">
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my Pod::To::XML::Reader $reader .= new: :indent;
+my PDF::Render::Tree::Reader::Pod $reader .= new: :indent;
 $doc.write: $reader.render($=pod);
 is $doc.Str, $xml,
     'Converts definitions correctly';

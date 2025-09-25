@@ -1,7 +1,7 @@
-unit class Pod::To::XML::Reader;
+unit class PDF::Render::Tree::Reader::Pod;
 
-use Pod::To::XML::Reader::Metadata;
-also does Pod::To::XML::Reader::Metadata;
+use PDF::Render::Tree::Reader::Pod::Metadata;
+also does PDF::Render::Tree::Reader::Pod::Metadata;
 
 subset Level where 0..6;
 
@@ -337,7 +337,7 @@ multi method read(Pod::Item $pod) {
     self!tag: ListItem, {
          if $num {
             self!tag: Label, {
-                $.read: $num
+                $.read: $num ~ '.'
             }
         }
         self!tag: ListBody, {
@@ -377,7 +377,7 @@ method !read-block($pod, :@levels!) {
         when Pod::Defn { $defn = True; 1 }
         default { 0 }
     }
-    self!nest-list: $list-level, :@levels;
+    self!nest-list: $list-level, :@levels, :$defn;
 
     if $list-level {
         with @!item-nums.tail -> $num is rw {
