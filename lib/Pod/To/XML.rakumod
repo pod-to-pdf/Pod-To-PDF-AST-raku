@@ -6,7 +6,7 @@ use LibXML::Item :&ast-to-xml;
 use LibXSLT;
 use LibXSLT::Stylesheet;
 use LibXSLT::Document;
-use PDF::Render::Tree::Reader::Pod;
+use PDF::Render::Tree::From::Pod;
 use JSON::Fast;
 
 sub format { enum <xml html json raku> }
@@ -84,7 +84,7 @@ our sub render (
     Str :$save-as,
     |c
 ) {
-    my PDF::Render::Tree::Reader::Pod $pod-reader .= new: |c;
+    my PDF::Render::Tree::From::Pod $pod-reader .= new: |c;
     my Pair $ast = $pod-reader.render($pod);
     $ast.&transform($format, :$indent, |c).&output($save-as);
 }

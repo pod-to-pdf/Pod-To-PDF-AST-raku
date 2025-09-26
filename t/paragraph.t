@@ -2,7 +2,7 @@ use v6;
 
 use Test;
 use LibXML::Writer::Buffer;
-use PDF::Render::Tree::Reader::Pod;
+use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
@@ -22,7 +22,7 @@ my $xml = q{<Document Lang="en">
 </Document>};
 
 my LibXML::Writer::Buffer $doc .= new;
-my PDF::Render::Tree::Reader::Pod $reader .= new: :indent;
+my PDF::Render::Tree::From::Pod $reader .= new: :indent;
 $doc.write: $reader.render($=pod);
 is $doc.Str, $xml;
 
