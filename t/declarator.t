@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document lang="en">
   <!-- Example taken from docs.raku.org/language/pod#Declarator_blocks -->
   <Div role="Declaration">
     <H2>Class Magician</H2>

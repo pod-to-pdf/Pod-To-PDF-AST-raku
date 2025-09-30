@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Author="David Warring" Subject="Subtitle from POD" Title="Main Title v1.2.3" Lang="en">
+my $xml = q{<Document author="David Warring" subject="Subtitle from POD" title="Main Title v1.2.3" lang="en">
   <Title>Main Title</Title>
   <H2>Subtitle from POD</H2>
   <H2>Author</H2>

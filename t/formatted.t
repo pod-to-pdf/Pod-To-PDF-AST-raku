@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document lang="en">
   <P>This text is of <Span TextDecorationType="Underline">minor significance</Span>.</P>
   <P>This text is of <Em>major significance</Em>.</P>
   <P>This text is of <Strong>fundamental significance</Strong>.</P>

@@ -9,7 +9,7 @@ my $author = 'David Warring';
 my $description = "sample Pod with replaced content";
 my %replace = :$date, :$title, :$author, :$description;
 
-my $xml = q{<Document Author="David Warring" Subject="Replacement Test" Title="Sample Title" Lang="en">
+my $xml = q{<Document author="David Warring" subject="Replacement Test" title="Sample Title" lang="en">
   <!-- sample Pod with replaced content -->
   <Title>Sample Title</Title>
   <H2>Replacement Test</H2>

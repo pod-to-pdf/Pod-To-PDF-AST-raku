@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document lang="en">
   <Div role="Declaration">
     <H2>Module Asdf1</H2>
     <P>This is a module</P>

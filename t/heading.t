@@ -5,7 +5,7 @@ use LibXML::Writer::Buffer;
 use PDF::Render::Tree::From::Pod;
 
 plan 1;
-my $xml = q{<Document Subject="for Pod::To::XML" Title="Heading tests" Lang="en">
+my $xml = q{<Document subject="for Pod::To::XML" title="Heading tests" lang="en">
   <Title>Heading tests</Title>
   <H2>for <Link href="Pod::To::XML">Pod::To::XML</Link></H2>
   <H1>Abbreviated heading1</H1>

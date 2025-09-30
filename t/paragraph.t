@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document lang="en">
   <P>This is all a paragraph.</P>
   <P>This is the next paragraph.</P>
   <P>This is the third paragraph.</P>

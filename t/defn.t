@@ -7,7 +7,7 @@ use Pod::To::XML;
 plan 2;
 
 my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
-<Document Lang="en">
+<Document lang="en">
   <L role="DL">
     <LI role="DL-DIV">
       <Lbl Placement="Block" role="DT">Happy</Lbl>

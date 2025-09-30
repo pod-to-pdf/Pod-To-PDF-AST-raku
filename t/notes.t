@@ -6,7 +6,7 @@ use PDF::Render::Tree::From::Pod;
 
 plan 1;
 
-my $xml = q{<Document Lang="en">
+my $xml = q{<Document lang="en">
   <P>sanity test of <FENote>if you click, here, you should got back to the paragraph</FENote> footnotes.</P>
 </Document>};
 
